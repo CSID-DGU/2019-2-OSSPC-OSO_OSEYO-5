@@ -1,7 +1,7 @@
 import pygame, sys, time
 from pygame.locals import *
 from Board import *
-
+import threading
 #               R    G    B
 WHITE       = (255, 255, 255)
 GRAY        = (185, 185, 185)
@@ -23,7 +23,7 @@ class Tetris:
         self.board = Board(self.screen)
         self.music_on_off = True
         self.check_reset = True
-
+        
     def handle_key(self, event_key):
         if event_key == K_DOWN or event_key == K_s:
             self.board.drop_piece()
@@ -43,6 +43,9 @@ class Tetris:
                 pygame.mixer.music.play(-1, 0.0)
             else:
                 pygame.mixer.music.stop()
+        elif event_key == K_z:
+            self.board.use_item()
+            
 
     def HighScore(self):
         try:
@@ -98,6 +101,8 @@ class Tetris:
                     self.handle_key(event.key)
                 elif event.type == pygame.USEREVENT:
                     self.board.drop_piece()
+                elif event.type== K_z:
+                    self.board.use_item()
             # self.screen.fill(BLACK)
             self.board.draw()
             pygame.display.update()
