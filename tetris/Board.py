@@ -217,7 +217,7 @@ class Board:
                     if len(inven)==3:
                         self.screen.blit(inven[2],(316,145))
                 
-    def back_to_origin(self):   #다시 원래 속도로 돌아옴
+    def back_to_origin(self): #다시 원래 속도로 돌아옴
         pygame.time.set_timer(pygame.USEREVENT,(500 - 50 * (self.level-1)))
         
     def slow(self): #달팽이 아이템 기능
@@ -229,7 +229,7 @@ class Board:
     def change(self):
         self.next_piece=Piece()
 
-    def squid_ink(self):
+    def squid_ink(self): # 오징어 먹물 아이템 기능(미완성)
         True
         #squid = pygame.image.load("C:/Users/oheej/OneDrive/Desktop/OSD_game-master/tetris/assets/images/squid_ink.png")
         #squid = pygame.transform.scale(squid, (250, 450))
@@ -283,7 +283,7 @@ class Board:
                                 self.screen.blit(updown,(x_pix,y_pix))
 
                             
-    def draw_shadow(self, array2d, dx, dy):                       
+    def draw_shadow(self, array2d, dx, dy): # 그림자 오류 디버깅                    
         for y, row in enumerate(array2d):
             y+=dy
             if y >= 2 and y < self.height:
@@ -299,9 +299,8 @@ class Board:
                                                             (x_s, y_s, self.block_size, self.block_size))
                         pygame.draw.rect(self.screen, BLACK,
                                                             (x_s, y_s, self.block_size, self.block_size),1)
-    
-                                        
-    
+   
+
     def draw_next_piece(self, array2d, color=WHITE):
         for y, row in enumerate(array2d):
             for x, block in enumerate(row):
