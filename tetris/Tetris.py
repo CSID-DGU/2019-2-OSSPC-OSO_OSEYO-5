@@ -69,13 +69,13 @@ class Tetris:
 
     def run(self):
         pygame.init()
-        icon = pygame.image.load('assets/images/icon.png')
+        icon = pygame.image.load('assets/images/icon.PNG')
         pygame.display.set_icon(icon)
         pygame.display.set_caption('Tetris')
         pygame.time.set_timer(pygame.USEREVENT, 500)
         start_sound = pygame.mixer.Sound('assets/sounds/Start.wav')
         start_sound.play()
-        bgm = pygame.mixer.music.load('assets/sounds/bgm.mp3')
+        bgm = pygame.mixer.music.load('assets/sounds/bgm.wav')
         while True:
             if self.check_reset:
                 self.board.newGame()
