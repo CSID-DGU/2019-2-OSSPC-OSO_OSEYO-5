@@ -252,7 +252,16 @@ class Board:
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
 
-    def draw_blocks(self, array2d, color=WHITE, dx=0, dy=0):    
+    def col_num(self, block):	블록의 번호에 따라 색깔 맞게 지정하는 함수
+        if block<8 and block:
+            return 1
+        elif block>7 and block<15: 
+            return 8
+        elif block>14 and block<22:
+            return 15
+        elif block>21 :
+            return 22  
+    def draw_blocks(self, array2d, color=WHITE, dx=0, dy=0):	#조건문으로 물음표,아이템들 블록에 띄움
         for y, row in enumerate(array2d):
             y += dy
             if y >= 2 and y < self.height:
@@ -260,23 +269,18 @@ class Board:
                     if block:
                         x += dx
                         x_pix, y_pix = self.pos_to_pixel(x, y)
-                        if block<8 and block: # 조건문으로 물음표 이미지를 띄움
-                            pygame.draw.rect(self.screen, self.piece.T_COLOR[block-1],
+                        num= self.col_num(block)       
+                        pygame.draw.rect(self.screen, self.piece.T_COLOR[block-num],
                                                 (x_pix, y_pix, self.block_size, self.block_size))
-                            pygame.draw.rect(self.screen, BLACK,
+                        pygame.draw.rect(self.screen, BLACK,
                                                 (x_pix, y_pix, self.block_size, self.block_size), 1)
                                 
-                        else:
-                            pygame.draw.rect(self.screen, self.piece.T_COLOR[block-8],
-                                                (x_pix, y_pix, self.block_size, self.block_size))
-                            pygame.draw.rect(self.screen, BLACK,
-                                                (x_pix, y_pix, self.block_size, self.block_size), 1)
-                            if block<13: # 7개중 5개의 피스 물음표 블록
-                                self.screen.blit(question,(x_pix,y_pix))
-                            elif block<14: # 7개중 1개의 피스 맨 밑줄 없애는 아이템 블록
-                                self.screen.blit(delete,(x_pix,y_pix))
-                            else: # 7개중 1개의 피스 세로로 없애는 아이템 블록
-                                self.screen.blit(updown,(x_pix,y_pix))
+                        if num==8:
+                            self.screen.blit(question,(x_pix,y_pix))
+                        elif num==15:
+                            self.screen.blit(delete,(x_pix,y_pix))
+                        elif num==22:
+                            self.screen.blit(updown,(x_pix,y_pix))
                           
     def draw_shadow(self, array2d, dx, dy): # 그림자 오류 디버깅                    
         for y, row in enumerate(array2d):
@@ -294,21 +298,18 @@ class Board:
                                                             (x_s, y_s, self.block_size, self.block_size))
                         pygame.draw.rect(self.screen, BLACK,
                                                             (x_s, y_s, self.block_size, self.block_size),1)
-   
-    def draw_next_piece(self, array2d, color=WHITE):
-        for y, row in enumerate(array2d):
-            for x, block in enumerate(row):
+
+    def draw_next_piece(self, array2d, color=WHITE):	#col_num으로 단순화
+        for y,row in enumerate(array2d):
+            for x,block in enumerate(row):
                 x_pix, y_pix = self.pos_to_pixel_next(x,y)
-                if block>=8:
-                    pygame.draw.rect(self.screen, self.piece.T_COLOR[block-8],
-                                    (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5))
+                if block:
+                    num=self.col_num(block)
+
+                    pygame.draw.rect(self.screen, self.piece.T_COLOR[block - num],
+                                        (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5))
                     pygame.draw.rect(self.screen, BLACK,
-                                    (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5),1)
-                elif block:
-                    pygame.draw.rect(self.screen, self.piece.T_COLOR[block-1],
-                                    (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5))
-                    pygame.draw.rect(self.screen, BLACK,
-                                    (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5),1)
+                                        (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5),1)
 
     def draw(self): #글씨나 값들이 가운데에 오도록 조정함
         now = datetime.datetime.now()
