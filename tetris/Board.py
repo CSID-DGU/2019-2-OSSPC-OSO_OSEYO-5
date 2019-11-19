@@ -20,7 +20,7 @@ LIGHTYELLOW = (175, 175,  20)
 # 이미지 불러오기, 아이템 리스트, 인벤토리 전역변수 선언
 item_list, item_block, inven=[],[],[] ## change item_list2 -> item_block
 snail=pygame.transform.scale(pygame.image.load("assets/images/snail.png"),(25,25))
-updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(28,28))
+updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(25,25))
 change=pygame.transform.scale(pygame.image.load("assets/images/change.png"),(25,25))
 delete=pygame.transform.scale(pygame.image.load("assets/images/delete.png"),(25,25))
 squid=pygame.transform.scale(pygame.image.load("assets/images/squid.png"),(25,25))
@@ -161,33 +161,40 @@ class Board:
     def delete_line(self, y):
         for y in reversed(range(1, y+1)):
             self.board[y] = list(self.board[y-1])
+
+    def delete_under(self):
+        self.delete_line(19)
+    
+    def delete_vertical(self,x1):
+        for i in range(len(self.board)):
+            self.board[i][x1]=0
     
     def delete_lines(self):
         for y,row in enumerate(self.board):
-            #block=20
             if all(row):
+                flag=False
                 for x, block in enumerate(row): #물음표가 존재하는 블럭이 사라지면 get_item()
                     if block >= 8 and block < 13:
                         self.get_item()
-                    elif block == 13 : # 맨 밑줄 사라지는 아이템이 있으면
-                        break
-                        
-                line_sound = pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
+                    elif block == 13 and y!=19: # 맨 밑줄 사라지는 아이템이 있으면
+                        flag=True
+                    elif block == 14 :
+                        self.delete_vertical(x)
+                    
+                line_sound=pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
                 line_sound.play()
 
-                if block==13:
-                    self.delete_line(y) # 아이템이 있는 라인을 없앤 뒤
-                    self.delete_line(19) # 맨 밑줄을 없앰
-                else :
-                    self.delete_line(y) # 그 아이템 없을 시 그냥 라인 없애기
-            
+                self.delete_line(y)
+                if flag==True:
+                    self.delete_under()
+
                 self.score += 10 * self.level
                 ## goal 당장 필요 x
                 '''self.goal -= 1
                 
                 if self.goal == 0:
                     if self.level < 10:
-                        self.level += 1
+                        self.level += 1 # goal과 따로 level 올리는 부분 필요
                         self.goal = 5 * self.level
                     else:
                         self.goal = '-'
@@ -197,7 +204,7 @@ class Board:
                     pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.level-1)))
                 else:
                     pygame.time.set_time(pygame.USEREVENT, 100)
-
+    
     def get_item(self):     #인벤토리에 아이템 생성
         if len(inven)<3:
             inven.append(item_list[random.randrange(0,4)])
