@@ -18,26 +18,20 @@ YELLOW      = (155, 155,   0)
 LIGHTYELLOW = (175, 175,  20)
 
 # 이미지 불러오기, 아이템 리스트, 인벤토리 전역변수 선언
-item_list, item_block, inven=[],[],[] ## change item_list2 -> item_block
+item_list, inven=[],[] ## item_block 리스트 삭제
 snail=pygame.transform.scale(pygame.image.load("assets/images/snail.png"),(25,25))
-updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(25,25))
-change=pygame.transform.scale(pygame.image.load("assets/images/change.png"),(25,25))
-delete=pygame.transform.scale(pygame.image.load("assets/images/delete.png"),(25,25))
-squid=pygame.transform.scale(pygame.image.load("assets/images/squid.png"),(25,25))
 quick=pygame.transform.scale(pygame.image.load("assets/images/quick.png"),(25,25))
-squid2=pygame.transform.scale(squid,(250,250))
+change=pygame.transform.scale(pygame.image.load("assets/images/change.png"),(25,25))
+squid=pygame.transform.scale(pygame.image.load("assets/images/squid.png"),(25,25))
+updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(25,25))
+delete=pygame.transform.scale(pygame.image.load("assets/images/delete.png"),(25,25))
+question = pygame.transform.scale(pygame.image.load("assets/images/question.png"),(24,24))
+squid_ink=pygame.transform.scale(pygame.image.load("assets/images/real-ink.png"),(250,250)) # 정사각형, 이미지 수정 필요
+
 item_list.append(snail)
 item_list.append(quick)
 item_list.append(change)
 item_list.append(squid)
-
-'''item_list2.append(updown)
-item_list2.append(change)'''
-question=pygame.image.load("assets/images/question.png")
-question = pygame.transform.scale(question, (24,24))
-item_block.append(updown)
-item_block.append(change)
-item_block.append(question)
 
 class Board:
     COLLIDE_ERROR = {'no_error' : 0, 'right_wall':1, 'left_wall':2,
@@ -162,34 +156,35 @@ class Board:
         for y in reversed(range(1, y+1)):
             self.board[y] = list(self.board[y-1])
 
-    def delete_under(self):
+    def delete_under(self):     # 맨 밑줄 없애는 아이템
         self.delete_line(19)
     
-    def delete_vertical(self,x1):
+    def delete_vertical(self,x): # 세로로 없애는 아이템
         for i in range(len(self.board)):
-            self.board[i][x1]=0
+            self.board[i][x]=0
     
     def delete_lines(self):
         for y,row in enumerate(self.board):
             if all(row):
                 flag=False
-                for x, block in enumerate(row): #물음표가 존재하는 블럭이 사라지면 get_item()
+                for x, block in enumerate(row): # 물음표가 존재하는 블럭이 사라지면 get_item()
                     if block >= 8 and block < 13:
                         self.get_item()
-                    elif block == 13 and y!=19: # 맨 밑줄 사라지는 아이템이 있으면
+                    elif block == 13 and y!=19: # 라인에 맨 밑줄 사라지는 아이템이 있으면 그리고 그 라인이 맨 밑줄이 아니면 
                         flag=True
-                    elif block == 14 :
+                    elif block == 14 : # 라인에 세로로 사라지는 아이템이 있으면
                         self.delete_vertical(x)
                     
                 line_sound=pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
                 line_sound.play()
 
                 self.delete_line(y)
-                if flag==True:
+
+                if flag==True: # flag가 True이면 맨 밑줄 사라지는 아이템이 있으면 맨 밑줄을 없앰
                     self.delete_under()
 
                 self.score += 10 * self.level
-                ## goal 당장 필요 x
+                ## goal 당장 필요 x, level up 하는 부분 필요
                 '''self.goal -= 1
                 
                 if self.goal == 0:
@@ -225,7 +220,8 @@ class Board:
             elif item==item_list[2]:
                 self.change()
             else:
-                self.squid_ink()
+                t=threading.Thread(target=self.squid_ink,args=(0,100))
+                t.start()
         
     def show_item(self):    #인벤토리의 아이템들을 보여줌
             if len(inven)>=1:
@@ -235,48 +231,26 @@ class Board:
                     if len(inven)==3:
                         self.screen.blit(inven[2],(316,145))
                 
-    def back_to_origin(self): #다시 원래 속도로 돌아옴
+    def back_to_origin(self): # 원래 속도로 돌아옴
         pygame.time.set_timer(pygame.USEREVENT,(500 - 50 * (self.level-1)))
         
-    def slow(self): #달팽이 아이템 기능
+    def slow(self): # 달팽이 아이템 기능
         pygame.time.set_timer(pygame.USEREVENT,1000)
 
-    def fast(self): #번개 아이템 기능
+    def fast(self): # 번개 아이템 기능
         pygame.time.set_timer(pygame.USEREVENT,100)
 
     def change(self):
         self.next_piece=Piece()
 
-    def squid_ink(self): # 오징어 먹물 아이템 기능(미완성)
-        True
-        #squid = pygame.image.load("C:/Users/oheej/OneDrive/Desktop/OSD_game-master/tetris/assets/images/squid_ink.png")
-        #squid = pygame.transform.scale(squid, (250, 450))
+    def squid_ink(self,a,b): # 오징어 먹물 아이템 기능
         # 잉크 사운드 추가ink_sound=pygame.mixer.Sound('소리 파일')
-        
-        for i in range(1000):
-            self.screen.blit(squid2, (0, 0))
-            
-        '''start=time.time()
-        while True :
-            self.screen.blit(squid, (0, 0))
-            if time.time()-start>3.0:
-                break
-            pygame.display.update()'''
-        
-            
-        '''clock=pygame.time.Clock()
-        while True:
-            self.screen.blit(squid, (0, 0))
-            pygame.display.update()
-            clock.tick(3)'''
+        for i in range(3000):
+            ink=self.screen.blit(squid_ink,(a, b))
         #ink_sound.play()
         
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
-
-    '''def what_item(self): 왜 안 되지..
-        what=item_block[random.randrange(0,3)]
-        return what'''
 
     def draw_blocks(self, array2d, color=WHITE, dx=0, dy=0):    
         for y, row in enumerate(array2d):
@@ -286,7 +260,7 @@ class Board:
                     if block:
                         x += dx
                         x_pix, y_pix = self.pos_to_pixel(x, y)
-                        if block<8 and block:       #조건문으로 물음표 이미지를 띄움
+                        if block<8 and block: # 조건문으로 물음표 이미지를 띄움
                             pygame.draw.rect(self.screen, self.piece.T_COLOR[block-1],
                                                 (x_pix, y_pix, self.block_size, self.block_size))
                             pygame.draw.rect(self.screen, BLACK,
@@ -297,19 +271,13 @@ class Board:
                                                 (x_pix, y_pix, self.block_size, self.block_size))
                             pygame.draw.rect(self.screen, BLACK,
                                                 (x_pix, y_pix, self.block_size, self.block_size), 1)
-                            if block<13:
+                            if block<13: # 7개중 5개의 피스 물음표 블록
                                 self.screen.blit(question,(x_pix,y_pix))
-                            elif block<14:
+                            elif block<14: # 7개중 1개의 피스 맨 밑줄 없애는 아이템 블록
                                 self.screen.blit(delete,(x_pix,y_pix))
-                            else:
+                            else: # 7개중 1개의 피스 세로로 없애는 아이템 블록
                                 self.screen.blit(updown,(x_pix,y_pix))
-                            ## change
-                            #what_item=item_block[random.randrange(0,3)]
-                            #a=self.what_item()
-                            #self.screen.blit(a,(x_pix,y_pix))
-                            ##
-
-                            
+                          
     def draw_shadow(self, array2d, dx, dy): # 그림자 오류 디버깅                    
         for y, row in enumerate(array2d):
             y+=dy

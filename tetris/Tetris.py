@@ -80,6 +80,7 @@ class Tetris:
             if self.check_reset:
                 self.board.newGame()
                 self.check_reset = False
+                #pygame.mixer.music.set_volume(0.70)
                 pygame.mixer.music.play(-1, 0.0)
             if self.board.game_over():
                 self.screen.fill(BLACK)
