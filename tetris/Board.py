@@ -252,7 +252,7 @@ class Board:
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
 
-    def col_num(self, block):	블록의 번호에 따라 색깔 맞게 지정하는 함수
+    def col_num(self, block):	#블록의 번호에 따라 색깔 맞게 지정하는 함수
         if block<8 and block:
             return 1
         elif block>7 and block<15: 
