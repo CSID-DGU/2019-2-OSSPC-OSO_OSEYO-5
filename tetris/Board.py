@@ -18,9 +18,9 @@ YELLOW      = (155, 155,   0)
 LIGHTYELLOW = (175, 175,  20)
 
 # 이미지 불러오기, 아이템 리스트, 인벤토리 전역변수 선언
-item_list, item_list2, inven=[],[],[]
+item_list, item_block, inven=[],[],[] ## change item_list2 -> item_block
 snail=pygame.transform.scale(pygame.image.load("assets/images/snail.png"),(25,25))
-updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(28,28))
+updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(25,25))
 change=pygame.transform.scale(pygame.image.load("assets/images/change.png"),(25,25))
 delete=pygame.transform.scale(pygame.image.load("assets/images/delete.png"),(25,25))
 squid=pygame.transform.scale(pygame.image.load("assets/images/squid.png"),(25,25))
@@ -31,10 +31,13 @@ item_list.append(quick)
 item_list.append(change)
 item_list.append(squid)
 
-item_list2.append(updown)
-item_list2.append(change)
+'''item_list2.append(updown)
+item_list2.append(change)'''
 question=pygame.image.load("assets/images/question.png")
 question = pygame.transform.scale(question, (24,24))
+item_block.append(updown)
+item_block.append(change)
+item_block.append(question)
 
 class Board:
     COLLIDE_ERROR = {'no_error' : 0, 'right_wall':1, 'left_wall':2,
@@ -56,19 +59,16 @@ class Board:
         self.skill = 0
         for _ in range(self.height):
             self.board.append([0]*self.width)
-            
-                        
+                                   
     def generate_piece(self):
         self.piece = Piece()
         self.next_piece = Piece()
         self.piece_x, self.piece_y = 3,0
-        
-        
+               
     def nextpiece(self):
         self.piece = self.next_piece
         self.next_piece = Piece()
-        self.piece_x, self.piece_y = 3, 0
-        
+        self.piece_x, self.piece_y = 3,0
         
     def absorb_piece(self):
         for y, row in enumerate(self.piece):
@@ -144,7 +144,6 @@ class Board:
             self.absorb_piece()
             self.delete_lines()
             
-
     def full_drop_piece(self):
         while self.can_drop_piece():
             self.drop_piece()
@@ -162,31 +161,50 @@ class Board:
     def delete_line(self, y):
         for y in reversed(range(1, y+1)):
             self.board[y] = list(self.board[y-1])
-                
+
+    def delete_under(self):
+        self.delete_line(19)
+    
+    def delete_vertical(self,x1):
+        for i in range(len(self.board)):
+            self.board[i][x1]=0
+    
     def delete_lines(self):
         for y,row in enumerate(self.board):
             if all(row):
+                flag=False
                 for x, block in enumerate(row): #물음표가 존재하는 블럭이 사라지면 get_item()
-                    if block > 8:
+                    if block >= 8 and block < 13:
                         self.get_item()
+                    elif block == 13 and y!=19: # 맨 밑줄 사라지는 아이템이 있으면
+                        flag=True
+                    elif block == 14 :
+                        self.delete_vertical(x)
                     
-                line_sound = pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
+                line_sound=pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
                 line_sound.play()
+
                 self.delete_line(y)
+                if flag==True:
+                    self.delete_under()
+
                 self.score += 10 * self.level
-                self.goal -= 1
+                ## goal 당장 필요 x
+                '''self.goal -= 1
                 
                 if self.goal == 0:
                     if self.level < 10:
-                        self.level += 1
+                        self.level += 1 # goal과 따로 level 올리는 부분 필요
                         self.goal = 5 * self.level
                     else:
                         self.goal = '-'
+                '''
+                ###
                 if self.level <= 9:
                     pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.level-1)))
                 else:
                     pygame.time.set_time(pygame.USEREVENT, 100)
-                    
+    
     def get_item(self):     #인벤토리에 아이템 생성
         if len(inven)<3:
             inven.append(item_list[random.randrange(0,4)])
@@ -256,6 +274,10 @@ class Board:
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
 
+    '''def what_item(self): 왜 안 되지..
+        what=item_block[random.randrange(0,3)]
+        return what'''
+
     def draw_blocks(self, array2d, color=WHITE, dx=0, dy=0):    
         for y, row in enumerate(array2d):
             y += dy
@@ -281,6 +303,11 @@ class Board:
                                 self.screen.blit(delete,(x_pix,y_pix))
                             else:
                                 self.screen.blit(updown,(x_pix,y_pix))
+                            ## change
+                            #what_item=item_block[random.randrange(0,3)]
+                            #a=self.what_item()
+                            #self.screen.blit(a,(x_pix,y_pix))
+                            ##
 
                             
     def draw_shadow(self, array2d, dx, dy): # 그림자 오류 디버깅                    
@@ -300,7 +327,6 @@ class Board:
                         pygame.draw.rect(self.screen, BLACK,
                                                             (x_s, y_s, self.block_size, self.block_size),1)
    
-
     def draw_next_piece(self, array2d, color=WHITE):
         for y, row in enumerate(array2d):
             for x, block in enumerate(row):
