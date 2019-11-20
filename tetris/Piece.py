@@ -133,12 +133,12 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
     T4 = (((0,0,0,0,0),(0,0,7,0,0),(0,0,7,7,0),(0,0,28,0,0),(0,0,0,0,0)),
          ((0,0,0,0,0),(0,0,0,0,0),(0,28,7,7,0),(0,0,7,0,0),(0,0,0,0,0)),
          ((0,0,0,0,0),(0,0,28,0,0),(0,7,7,0,0),(0,0,7,0,0),(0,0,0,0,0)),
-		 ((0,0,0,0,0),(0,0,7,0,0),(0,7,7,28,0),(0,0,0,0,0),(0,0,0,0,0)))
+	 ((0,0,0,0,0),(0,0,7,0,0),(0,7,7,28,0),(0,0,0,0,0),(0,0,0,0,0)))
 
     PIECES = {'O': O, 'I': I, 'L': L, 'J': J, 'Z': Z, 'S':S, 'T':T}
-    PIECES2={'O2': O2, 'I2': I2, 'L2': L2, 'J2': J2, 'Z2': Z2, 'S2':S2, 'T2':T2
-			  ,'O3': O3, 'I3': I3, 'L3': L3, 'J3': J3, 'Z3': Z3, 'S3':S3, 'T3':T3
-			  ,'O4': O4, 'I4': I4, 'L4': L4, 'J4': J4, 'Z4': Z4, 'S4':S4, 'T4':T4}
+    PIECES2={'O2': O2, 'I2': I2, 'L2': L2, 'J2': J2, 'Z2': Z2, 'S2':S2, 'T2':T2,
+			  'O3': O3, 'I3': I3, 'L3': L3, 'J3': J3, 'Z3': Z3, 'S3':S3, 'T3':T3,
+			  'O4': O4, 'I4': I4, 'L4': L4, 'J4': J4, 'Z4': Z4, 'S4':S4, 'T4':T4}
     T_COLOR = [yellow ,cyan, orange, blue, red, green, pink, (55, 55, 55)]
 
     def __init__(self, piece_name=None):
@@ -147,7 +147,7 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
         	self.piece_name = piece_name
         else:
             a = random.randint(1,5)
-            if a == 1:
+            if a < 3:
                 self.piece_name = random.choice(list(Piece.PIECES2.keys()))
                 self.array2d = Piece.PIECES2[self.piece_name][self.rotation]
             else:
@@ -166,6 +166,7 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
             self.rotation = (self.rotation + 1) % 4
         else:
             self.rotation = (self.rotation - 1) % 4
+
         if len(self.piece_name)>1:
         	self.array2d = Piece.PIECES2[self.piece_name][self.rotation]
         else:
