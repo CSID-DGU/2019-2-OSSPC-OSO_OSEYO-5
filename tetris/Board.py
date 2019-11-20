@@ -168,11 +168,12 @@ class Board:
             if all(row):
                 flag=False
                 for x, block in enumerate(row): # 물음표가 존재하는 블럭이 사라지면 get_item()
-                    if block >= 8 and block < 13:
+                    num=self.col_num(block)
+                    if num==8:
                         self.get_item()
-                    elif block == 13 and y!=19: # 라인에 맨 밑줄 사라지는 아이템이 있으면 그리고 그 라인이 맨 밑줄이 아니면 
+                    elif num==15 and y!=19: # 라인에 맨 밑줄 사라지는 아이템이 있으면 그리고 그 라인이 맨 밑줄이 아니면 
                         flag=True
-                    elif block == 14 : # 라인에 세로로 사라지는 아이템이 있으면
+                    elif num==22 : # 라인에 세로로 사라지는 아이템이 있으면
                         self.delete_vertical(x)
                     
                 line_sound=pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
@@ -252,7 +253,7 @@ class Board:
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
 
-    def col_num(self, block):	블록의 번호에 따라 색깔 맞게 지정하는 함수
+    def col_num(self, block):	#블록의 번호에 따라 색깔 맞게 지정하는 함수
         if block<8 and block:
             return 1
         elif block>7 and block<15: 
@@ -269,8 +270,8 @@ class Board:
                     if block:
                         x += dx
                         x_pix, y_pix = self.pos_to_pixel(x, y)
-                        num= self.col_num(block)       
-                        pygame.draw.rect(self.screen, self.piece.T_COLOR[block-num],
+                        num = self.col_num(block)       
+                        pygame.draw.rect(self.screen, self.piece.T_COLOR[block - num],
                                                 (x_pix, y_pix, self.block_size, self.block_size))
                         pygame.draw.rect(self.screen, BLACK,
                                                 (x_pix, y_pix, self.block_size, self.block_size), 1)
