@@ -177,19 +177,22 @@ def main(test=False):
                                         textinput_id='PASSWORD',
                                         input_underline='_')
 
-    def data_func():
+   def data_func():
         """
         Print data of the menu.
 
         :return: None
         """
         print('signup data:')
+        f = open("account.txt", "a") #가입한 계정이 저장되는 위치
         data = signup_menu.get_input_data()
-        new_user_id = data['ID']
-        new_user_pw = data['PASSWORD']
-        new_user_sc = "0" #score 점수 0으로 초기화
-        f = open("D:\Open\pygame-menu-master\pygameMenu\examples/account.txt", "a") #가입한 계정이 저장되는 위치
-        f.write(new_user_id + " " + new_user_pw + " " + new_user_sc + "\n")
+        if data['ID'] in open("account.txt").read():
+            print("중복되는 아이디가 있습니다.")
+        else:
+            new_user_id = (data['ID'].strip()).upper()
+            new_user_pw = (data['PASSWORD'].strip()).upper()
+            new_user_sc = "0" #score 점수 0으로 초기화
+            f.write(new_user_id + " " + new_user_pw + " " + new_user_sc + "\n")
         f.close()
 
     signup_menu.add_option('Store data', data_func)  # Call function
@@ -226,41 +229,41 @@ def main(test=False):
                                maxchar=8,
                                textinput_id='PASSWORD',
                                input_underline='_')
-
+   
     def data2_func():
 
         print('sign in data : ')
         data = signin_menu.get_input_data() # UI상에 입력된 정보 받아서 data에 저장
-        input_id = data['ID']
-        input_pw = data['PASSWORD']
-        f = open("D:\Open\pygame-menu-master\pygameMenu\examples/account.txt", "r")  # 가입한 계정이 저장되는 위치
+        input_id = (data['ID'].strip()).upper()
+        input_pw = (data['PASSWORD'].strip()).upper()
+        f = open("account.txt", "r")  # 가입한 계정이 저장되는 위치
         r = f.read()
         l = r.split()
-        print(l)
-        print(len(l))
 
-        for i in l:  # 아이디 인덱스와 로그아웃 상태 확인
-            id_idx = 0
-            login_con = 0
-
-            while id_idx < len(l):  # 아이디 인덱스가 리스트 길이보다 짧으면
-                if input_id != l[id_idx]:  # 리스트 아이디와 아이디인덱스 value 비교
-                    id_idx += 3
-                    print(id_idx)
-                    print(l[id_idx])
-
-                elif input_id == l[id_idx]:  # 아이디 있으면 비밀번호 입력
-                    print(l[1])
-                    while login_con == 0:
-                        if input_pw == l[id_idx + 1]:
-                            print("로그인 성공")
-                            login_con = 1
-                        else:
-                             print("비밀번호가 틀렸습니다")
+        id_idx = 0
+        login_con = 0
+        
+        while id_idx < len(l):  # 아이디 인덱스가 리스트 길이보다 짧으면
+            if input_id != l[id_idx]:  # 리스트 아이디와 아이디인덱스 value 비교
+                id_idx += 3
+                continue
+            elif input_id == l[id_idx]:  # 아이디 있으면 비밀번호 입력
+                if login_con == 0:
+                    if input_pw == l[id_idx + 1]:
+                        print("어서오세요! "+input_id+"회원님")
+                        login_con = 1
+                        break
+                    else:
+                         print("잘못된 비밀번호입니다.")
+                         break
+            else:
+                print("아이디가 존재하지 않습니다") #안뜸.어떻게 위치를 바꿀것인지?
+                break
+                
         f.close()
-    signin_menu.add_option('Login', data2_func)  # Call function
-    signin_menu.add_option('Return to main menu', pygameMenu.events.BACK, align=pygameMenu.locals.ALIGN_CENTER)
-
+    signin_menu.add_option('Login',data2_func)
+    signin_menu.add_option('Return to main menu',pygameMenu.events.BACK,align=pygameMenu.locals.ALIGN_CENTER)
+    
     # Main menu
     main_menu = pygameMenu.Menu(surface,
                                 bgfun=main_background,
