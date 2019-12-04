@@ -184,12 +184,15 @@ def main(test=False):
         :return: None
         """
         print('signup data:')
+        f=open("account.txt","a")
         data = signup_menu.get_input_data()
-        new_user_id = data['ID']
-        new_user_pw = data['PASSWORD']
-        new_user_sc = "0" #score 점수 0으로 초기화
-        f = open("D:\Open\pygame-menu-master\pygameMenu\examples/account.txt", "a") #가입한 계정이 저장되는 위치
-        f.write(new_user_id + " " + new_user_pw + " " + new_user_sc + "\n")
+        if (data['ID'].strip()).upper() in open("account.txt").read():
+            print("중복되는 아이디가 있습니다.")
+        else:
+            new_user_id = (data['ID'],strip()).upper()
+            new_user_pw = (data['PASSWORD'].strip()).upper()
+            new_user_sc = "0" #score 점수 0으로 초기화
+            f.write(new_user_id + " " + new_user_pw + " " + new_user_sc + "\n")
         f.close()
 
     signup_menu.add_option('Store data', data_func)  # Call function
