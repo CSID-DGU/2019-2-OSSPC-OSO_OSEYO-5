@@ -185,7 +185,8 @@ class Board:
                     self.delete_under()
 
                 self.score += 10 * self.level
-                ## goal 당장 필요 x, level up 하는 부분 필요
+
+        
                 '''self.goal -= 1
                 
                 if self.goal == 0:
@@ -262,6 +263,7 @@ class Board:
             return 15
         elif block>21 :
             return 22  
+            
     def draw_blocks(self, array2d, color=WHITE, dx=0, dy=0):	#조건문으로 물음표,아이템들 블록에 띄움
         for y, row in enumerate(array2d):
             y += dy
@@ -312,7 +314,7 @@ class Board:
                     pygame.draw.rect(self.screen, BLACK,
                                         (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5),1)
 
-    def draw(self): #글씨나 값들이 가운데에 오도록 조정함
+    def draw(self, input_id): #글씨나 값들이 가운데에 오도록 조정함
         now = datetime.datetime.now()
         nowTime = now.strftime('%H:%M:%S')
         self.screen.fill(BLACK)
@@ -342,15 +344,20 @@ class Board:
         level_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.level), True, BLACK)
         time_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('TIMER', True, BLACK)        
         time_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(nowTime), True, BLACK)
+        player_text = pygame.font.Font('assets/Roboto-Bold.ttf',18).render('PLAYER',True,BLACK)
+        player_value = pygame.font.Font('assets/Roboto-Bold.ttf',16).render(input_id,True,BLACK)
+
         self.screen.blit(next_text, (275, 20))
         self.screen.blit(item_text, (275, 120))
         
         self.screen.blit(score_text, (270, 200))
         self.screen.blit(score_value, (290,225))
-        self.screen.blit(level_text, (270, 275))
-        self.screen.blit(level_value, (290,300))
-        self.screen.blit(time_text, (275,405))
-        self.screen.blit(time_value, (275, 430))
+        self.screen.blit(level_text, (270, 270))
+        self.screen.blit(level_value, (290,295))
+        self.screen.blit(player_text, (270,340))
+        self.screen.blit(player_value, (265, 365))
+        self.screen.blit(time_text,(265,405))
+        self.screen.blit(time_value,(275,430))
 
     def pause(self):
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
@@ -419,19 +426,32 @@ class Board:
                 elif event.type == KEYDOWN:
                     running = False
 
-    def HS(self, txt="no"):
-        if txt != "no":
-            fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
-            textSurfaceObj = fontObj.render('HighScore : '+txt, True, GREEN)
-            textRectObj = textSurfaceObj.get_rect()
-            textRectObj.center = (175, 185)
+    def HS(self, txt=[]):
+        if txt != []:
+            fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 25)
             fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
+            textSurfaceObj = fontObj.render("~Top 10 Score~", True, WHITE)
             textSurfaceObj2 = fontObj2.render('Press a key to continue', True, GREEN)
+            textRectObj = textSurfaceObj.get_rect()
             textRectObj2 = textSurfaceObj2.get_rect()
-            textRectObj2.center = (175, 235)
+            textRectObj.center = (175, 35)
+            textRectObj2.center = (175, 435)
             self.screen.fill(BLACK)
             self.screen.blit(textSurfaceObj, textRectObj)
             self.screen.blit(textSurfaceObj2, textRectObj2)
+            for i,score in enumerate(txt):
+                textSurfaceObj3_1 = fontObj.render("No."+str(i+1), True, WHITE)
+                textSurfaceObj3_2 = fontObj.render(str(score[0]), True, WHITE)
+                textSurfaceObj3_3 = fontObj.render(str(score[1]), True, WHITE)
+                textRectObj3_1 = textSurfaceObj3_1.get_rect(); textRectObj3_1.center=(80,100+i*30)
+                textRectObj3_2 = textSurfaceObj3_2.get_rect();textRectObj3_2.center=(180,100+i*30)
+                textRectObj3_3 = textSurfaceObj3_3.get_rect();textRectObj3_3.center=(260,100+i*30)
+                self.screen.blit(textSurfaceObj3_1, textRectObj3_1)
+                self.screen.blit(textSurfaceObj3_2, textRectObj3_2)
+                self.screen.blit(textSurfaceObj3_3, textRectObj3_3)
+
+
+
             pygame.display.update()
             running = True
             while running:
