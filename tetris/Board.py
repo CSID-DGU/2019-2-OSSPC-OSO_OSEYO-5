@@ -26,7 +26,7 @@ squid=pygame.transform.scale(pygame.image.load("assets/images/squid.png"),(25,25
 updown=pygame.transform.scale(pygame.image.load("assets/images/updown.png"),(25,25))
 delete=pygame.transform.scale(pygame.image.load("assets/images/delete.png"),(25,25))
 question = pygame.transform.scale(pygame.image.load("assets/images/question.png"),(24,24))
-squid_ink=pygame.transform.scale(pygame.image.load("assets/images/real-ink.png"),(250,250)) # 정사각형, 이미지 수정 필요
+squid_ink=pygame.transform.scale(pygame.image.load("assets/images/real-ink.png"),(250,250))
 
 item_list.append(snail)
 item_list.append(quick)
@@ -48,9 +48,7 @@ class Board:
     def init_board(self):
         self.board = []
         self.score = 0
-        self.level = 1
-        self.goal = 5
-        self.skill = 0
+        self.round = 1
         for _ in range(self.height):
             self.board.append([0]*self.width)
                                    
@@ -70,9 +68,7 @@ class Board:
                 if block:
                     self.board[y+self.piece_y][x+self.piece_x] = block
         self.nextpiece()
-        self.score += self.level
-        if self.skill < 100:
-            self.skill += 5
+        self.score += self.round
 
     def block_collide_with_board(self, x, y):
         if x < 0:
@@ -159,7 +155,7 @@ class Board:
     def delete_under(self):     # 맨 밑줄 없애는 아이템
         self.delete_line(19)
     
-    def delete_vertical(self,x): # 세로로 없애는 아이템
+    def delete_vertical(self,x):    # 세로로 없애는 아이템
         for i in range(len(self.board)):
             self.board[i][x]=0
     
@@ -170,11 +166,12 @@ class Board:
                 count.append(y)
                 flag=False
                 for x, block in enumerate(row): # 물음표가 존재하는 블럭이 사라지면 get_item()
-                    if block >= 8 and block < 13:
+                    num=self.col_num(block)
+                    if num==8:
                         self.get_item()
-                    elif block == 13 and y!=19: # 라인에 맨 밑줄 사라지는 아이템이 있으면 그리고 그 라인이 맨 밑줄이 아니면 
+                    elif num==15 and y!=19: # 라인에 맨 밑줄 사라지는 아이템이 있으면 그리고 그 라인이 맨 밑줄이 아니면 
                         flag=True
-                    elif block == 14 : # 라인에 세로로 사라지는 아이템이 있으면
+                    elif num==22 : # 라인에 세로로 사라지는 아이템이 있으면
                         self.delete_vertical(x)
                     
                 line_sound=pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
@@ -185,26 +182,10 @@ class Board:
                 if flag==True: # flag가 True이면 맨 밑줄 사라지는 아이템이 있으면 맨 밑줄을 없앰
                     self.delete_under()
 
-                '''#self.score += 10 * self.level
-                if len(count)==1:
-                    self.score+=10*self.level
-                else :
-                    self.score+=len(count)*10*self.level'''
-                ## goal 당장 필요 x, level up 하는 부분 필요
-                '''self.goal -= 1
-                
-                if self.goal == 0:
-                    if self.level < 10:
-                        self.level += 1 # goal과 따로 level 올리는 부분 필요
-                        self.goal = 5 * self.level
-                    else:
-                        self.goal = '-'
-                '''
-                ###
-                if self.level <= 9:
-                    pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.level-1)))
-                else:
-                    pygame.time.set_time(pygame.USEREVENT, 100)
+                self.score += 10 * self.round
+
+        if len(count)>1:    # 콤보점수
+            self.score+=len(count)*100
 
     def get_item(self):     #인벤토리에 아이템 생성
         if len(inven)<3:
@@ -237,28 +218,28 @@ class Board:
                     if len(inven)==3:
                         self.screen.blit(inven[2],(316,145))
                 
-    def back_to_origin(self): # 원래 속도로 돌아옴
-        pygame.time.set_timer(pygame.USEREVENT,(500 - 50 * (self.level-1)))
+    def back_to_origin(self):   # 원래 속도로 돌아옴
+        pygame.time.set_timer(pygame.USEREVENT,(500 - 50 * (self.round-1)))
         
-    def slow(self): # 달팽이 아이템 기능
+    def slow(self):     # 달팽이 아이템 기능
         pygame.time.set_timer(pygame.USEREVENT,1000)
 
-    def fast(self): # 번개 아이템 기능
+    def fast(self):     # 번개 아이템 기능
         pygame.time.set_timer(pygame.USEREVENT,100)
 
     def change(self):
         self.next_piece=Piece()
 
     def squid_ink(self,a,b): # 오징어 먹물 아이템 기능
-        # 잉크 사운드 추가ink_sound=pygame.mixer.Sound('소리 파일')
+        ink_sound=pygame.mixer.Sound('assets/sounds/squid_ink.wav')
+        ink_sound.play()
         for i in range(3000):
             ink=self.screen.blit(squid_ink,(a, b))
-        #ink_sound.play()
         
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
 
-    def col_num(self, block): #블록의 번호에 따라 색깔 맞게 지정하는 함수
+    def col_num(self, block):	#블록의 번호에 따라 색깔 맞게 지정하는 함수
         if block<8 and block:
             return 1
         elif block>7 and block<15: 
@@ -267,6 +248,7 @@ class Board:
             return 15
         elif block>21 :
             return 22  
+    
     def draw_blocks(self, array2d, color=WHITE, dx=0, dy=0):	#조건문으로 물음표,아이템들 블록에 띄움
         for y, row in enumerate(array2d):
             y += dy
@@ -275,8 +257,8 @@ class Board:
                     if block:
                         x += dx
                         x_pix, y_pix = self.pos_to_pixel(x, y)
-                        num= self.col_num(block)       
-                        pygame.draw.rect(self.screen, self.piece.T_COLOR[block-num],
+                        num = self.col_num(block)       
+                        pygame.draw.rect(self.screen, self.piece.T_COLOR[block - num],
                                                 (x_pix, y_pix, self.block_size, self.block_size))
                         pygame.draw.rect(self.screen, BLACK,
                                                 (x_pix, y_pix, self.block_size, self.block_size), 1)
@@ -343,19 +325,18 @@ class Board:
         pygame.draw.rect(self.screen, BLACK, [316, 145, 25, 25], 1)
         score_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('SCORE', True, BLACK)
         score_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.score), True, BLACK)
-        level_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('LEVEL', True, BLACK)
-        level_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.level), True, BLACK)
+        round_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('ROUND', True, BLACK)
+        round_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.round), True, BLACK)
         time_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('TIMER', True, BLACK)        
-        time_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(nowTime), True, BLACK)
+        
         self.screen.blit(next_text, (275, 20))
         self.screen.blit(item_text, (275, 120))
         
         self.screen.blit(score_text, (270, 200))
         self.screen.blit(score_value, (290,225))
-        self.screen.blit(level_text, (270, 275))
-        self.screen.blit(level_value, (290,300))
+        self.screen.blit(round_text, (270, 275))
+        self.screen.blit(round_value, (290,300))
         self.screen.blit(time_text, (275,405))
-        self.screen.blit(time_value, (275, 430))
 
     def pause(self):
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
@@ -402,6 +383,42 @@ class Board:
                 elif event.type == KEYDOWN:
                     running = False
 
+    def next_round(self):
+        fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
+        textSurfaceObj = fontObj.render('Next Round', True, GREEN)
+        textRectObj = textSurfaceObj.get_rect()
+        textRectObj.center = (175, 185)
+        fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
+        textSurfaceObj2 = fontObj2.render('Press space to continue', True, GREEN)
+        textRectObj2 = textSurfaceObj2.get_rect()
+        textRectObj2.center = (175, 235)
+        self.screen.fill(BLACK)
+        self.screen.blit(textSurfaceObj, textRectObj)
+        self.screen.blit(textSurfaceObj2, textRectObj2)
+            
+        self.board = [] # 보드 초기화
+        del inven[:]
+        
+        if self.round<=9:
+            self.round+=1
+            pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.round-1)))
+        else :
+            self.round='-'
+            pygame.time.set_timer(pygame.USEREVENT, 100)
+
+        for _ in range(self.height):
+            self.board.append([0]*self.width)
+        pygame.display.update()
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == KEYUP and event.key == K_SPACE:
+                    running = False
+
     def newGame(self):
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
         textSurfaceObj = fontObj.render('Tetris', True, GREEN)
@@ -446,17 +463,3 @@ class Board:
                         sys.exit()
                     elif event.type == KEYDOWN:
                         running = False
-
-    def ultimate(self):
-        if self.skill == 100:
-            bomb = pygame.image.load("assets/images/bomb.jpg")
-            bomb = pygame.transform.scale(bomb, (350, 450))
-            bomb_sound = pygame.mixer.Sound('assets/sounds/bomb.wav')
-            self.screen.blit(bomb, (0, 0))
-            pygame.display.update()
-            bomb_sound.play()
-            time.sleep(1)
-            self.board = []
-            self.skill = 0
-            for _ in range(self.height):
-                self.board.append([0]*self.width)
