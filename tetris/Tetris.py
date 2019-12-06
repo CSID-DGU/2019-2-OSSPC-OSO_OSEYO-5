@@ -281,6 +281,8 @@ def main(test=False):
         data = signup_menu.get_input_data()
         if (data['ID'].strip()).upper() in open("account.txt").read():
             print("중복되는 아이디가 있습니다.")
+        elif (len(data['ID'].strip().split())>1):
+            print("띄어쓰기는 허용되지 않습니다.")
         else:
             new_user_id = (data['ID'].strip()).upper()
             new_user_pw = (data['PASSWORD'].strip()).upper()
@@ -331,33 +333,22 @@ def main(test=False):
         f = open("account.txt", "r")  # 가입한 계정이 저장되는 위치
         r = f.read()
         l = r.split()
-        print(l[0])
-        print(l[1])
-        print(input_id)
-        print(input_pw)
-
-        for i in l:  # 아이디 인덱스와 로그아웃 상태 확인
-            id_idx = 0
-            login_con = 0
-
-            while id_idx <= len(l):  # 아이디 인덱스가 리스트 길이보다 짧으면
-                if input_id != l[id_idx]:  # 리스트 아이디와 아이디인덱스 value 비교
-                    id_idx += 3
-
-                elif input_id == l[id_idx]:  # 아이디 있으면 비밀번호 입력
-                    while login_con == 0:
-                        if input_pw == l[id_idx + 1]:
-                            login_con = 1
-                            print("signed in")
-                            Tetris().run(input_id)
-                            break
-                        else:
-                            print("비밀번호가 틀렸습니다")
-                            break
-
- 
-
         f.close()
+        id_idx=0; login_con=0
+        for id_idx in range(len(l)):  # 아이디 인덱스가 리스트 길이보다 짧으면
+            if input_id != l[id_idx]:  # 리스트 아이디와 아이디인덱스 value 비교
+                id_idx += 3
+            elif input_id == l[id_idx]:  # 아이디 있으면 비밀번호 입력
+               if login_con == 0:
+                    if input_pw == l[id_idx+1]:
+                       login_con = 1
+                       print("signed in")
+                       Tetris().run(input_id)
+                       break
+                    else:
+                        print("비밀번호가 틀렸습니다")
+                        break
+    
     signin_menu.add_option('Login', data2_func)  # Call function
     signin_menu.add_option('Return to main menu', pygameMenu.events.BACK, align=pygameMenu.locals.ALIGN_CENTER)
 
