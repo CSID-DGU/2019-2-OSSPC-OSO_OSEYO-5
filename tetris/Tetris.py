@@ -16,13 +16,18 @@ YELLOW      = (155, 155,   0)
 LIGHTYELLOW = (175, 175,  20)
 
 class Tetris:
-
     def __init__(self):
         self.screen = pygame.display.set_mode((350, 450))
         self.clock = pygame.time.Clock()
         self.board = Board(self.screen)
         self.music_on_off = True
         self.check_reset = True
+
+    def init(self):
+        self.frame_count=0
+        self.start_time=90 # origin 90
+        self.board.piece_x=3
+        self.board.piece_y=0
         
     def handle_key(self, event_key):
         if event_key == K_DOWN or event_key == K_s:
@@ -46,7 +51,6 @@ class Tetris:
         elif event_key == K_z:
             self.board.use_item()
             
-
     def HighScore(self):
         try:
             f = open('assets/save.txt', 'r')
@@ -66,8 +70,8 @@ class Tetris:
             f.close()
             self.board.HS(str(self.board.score))
 
-
     def run(self):
+        self.init()
         pygame.init()
         icon = pygame.image.load('assets/images/icon.PNG')
         pygame.display.set_icon(icon)
@@ -80,7 +84,7 @@ class Tetris:
             if self.check_reset:
                 self.board.newGame()
                 self.check_reset = False
-                #pygame.mixer.music.set_volume(0.70)
+                pygame.mixer.music.set_volume(0.60) # 볼륩
                 pygame.mixer.music.play(-1, 0.0)
             if self.board.game_over():
                 self.screen.fill(BLACK)
@@ -106,7 +110,25 @@ class Tetris:
                     self.board.use_item()
             # self.screen.fill(BLACK)
             self.board.draw()
-            pygame.display.update()
+
+            # Timer
+            total_seconds=self.start_time-(self.frame_count//30)
+            if total_seconds<0:
+                total_seconds=0
+
+            minutes=total_seconds//60
+            seconds=total_seconds%60
+
+            output='{0:02}:{1:02}'.format(minutes,seconds)
+            time_value=pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(output, True, BLACK)
+            self.screen.blit(time_value,(275,430))
+            self.frame_count+=1
+            
+            if minutes==0 and seconds==0:
+                self.board.next_round()
+                self.init()
+
+            pygame.display.flip() 
             self.clock.tick(30)
 
 if __name__ == "__main__":

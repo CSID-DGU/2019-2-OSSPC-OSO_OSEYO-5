@@ -13,7 +13,7 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
     O = (((0,0,0,0,0), (0,0,0,0,0),(0,0,1,1,0),(0,0,1,1,0),(0,0,0,0,0)),) * 4
     O2 = (((0,0,0,0,0), (0,0,0,0,0),(0,0,8,1,0),(0,0,1,1,0),(0,0,0,0,0)),) * 4
     O3 = (((0,0,0,0,0), (0,0,0,0,0),(0,0,15,1,0),(0,0,1,1,0),(0,0,0,0,0)),) * 4
-    O4 = (((0,0,0,0,0), (0,0,0,0,0),(0,22,1,0),(0,0,1,1,0),(0,0,0,0,0)),) * 4
+    O4 = (((0,0,0,0,0), (0,0,0,0,0),(0,0,22,1,0),(0,0,1,1,0),(0,0,0,0,0)),) * 4
 
     I = (((0,0,0,0,0),(0,0,0,0,0),(0,2,2,2,2),(0,0,0,0,0),(0,0,0,0,0)),
          ((0,0,0,0,0),(0,0,2,0,0),(0,0,2,0,0),(0,0,2,0,0),(0,0,2,0,0)),
@@ -154,9 +154,6 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
                 self.piece_name = random.choice(list(Piece.PIECES.keys()))
                 self.array2d = Piece.PIECES[self.piece_name][self.rotation]
         
-        
-        
-
     def __iter__(self):
         for row in self.array2d:
             yield row
@@ -170,4 +167,4 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
         if len(self.piece_name)>1:
         	self.array2d = Piece.PIECES2[self.piece_name][self.rotation]
         else:
-                self.array2d = Piece.PIECES[self.piece_name][self.rotation]
+          self.array2d = Piece.PIECES[self.piece_name][self.rotation]
