@@ -399,7 +399,7 @@ class Board:
         self.board = [] # 보드 초기화
         del inven[:]
         
-        if self.round<=9:
+        if self.round<=9: # 단계 조정 필요
             self.round+=1
             pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.round-1)))
         else :
