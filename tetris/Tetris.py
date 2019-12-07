@@ -67,7 +67,9 @@ class Tetris:
 
         self.board.HS(high_scores)
 
+
     def run(self, input_id):
+        self.init()
         pygame.init()
         icon = pygame.image.load('assets/images/icon.PNG')
         pygame.display.set_icon(icon)
@@ -105,7 +107,7 @@ class Tetris:
                 elif event.type== K_z:
                     self.board.use_item()
 
-            self.board.draw()
+            self.board.draw(input_id)
 
             # Timer
             total_seconds=self.start_time-(self.frame_count//30)
@@ -126,9 +128,6 @@ class Tetris:
 
             pygame.display.flip() 
 
-            # self.screen.fill(BLACK)
-            self.board.draw(input_id)
-            pygame.display.update()
             self.clock.tick(30)
 
 #여기부터 홈 메뉴 부분 가져온거
@@ -269,9 +268,9 @@ def main(test=False):
         :return: None
         """
         print('signup data:')
-        f=open("account.txt","a")
+        f=open("assets/account.txt","a")
         data = signup_menu.get_input_data()
-        if (data['ID'].strip()).upper() in open("account.txt").read():
+        if (data['ID'].strip()).upper() in open("assets/account.txt").read():
             print("중복되는 아이디가 있습니다.")
         elif (len(data['ID'].strip().split())>1):
             print("띄어쓰기는 허용되지 않습니다.")
@@ -323,7 +322,7 @@ def main(test=False):
         data = signin_menu.get_input_data()  # UI상에 입력된 정보 받아서 data에 저장
         input_id = (data['ID'].strip()).upper()
         input_pw = (data['PASSWORD'].strip()).upper()
-        f = open("account.txt", "r")  # 가입한 계정이 저장되는 위치
+        f = open("assets/account.txt", "r")  # 가입한 계정이 저장되는 위치
         r = f.read()
         l = r.split()
         f.close()
@@ -372,7 +371,7 @@ def main(test=False):
 
     # rank_menu ##j
     ranks  = []
-    with open('highscores.txt', 'rb') as f:
+    with open('assets/highscores.txt', 'rb') as f:
         r = pickle.load(f)
         r.sort(key=itemgetter(1, 0), reverse=True)
         for i in range(0,len(r)):

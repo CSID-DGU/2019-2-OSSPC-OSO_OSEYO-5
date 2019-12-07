@@ -163,8 +163,10 @@ class Board:
             self.board[i][x]=0
     
     def delete_lines(self):
+        count=[]
         for y,row in enumerate(self.board):
             if all(row):
+                count.append(y)
                 flag=False
                 for x, block in enumerate(row): # 물음표가 존재하는 블럭이 사라지면 get_item()
                     num=self.col_num(block)
@@ -189,11 +191,6 @@ class Board:
                     self.score+=100
         if len(count)>1:    # 콤보점수
             self.score+=len(count)*100
-
-                if self.level <= 9:
-                    pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.level-1)))
-                else:
-                    pygame.time.set_time(pygame.USEREVENT, 100)
     
     def get_item(self):     #인벤토리에 아이템 생성
         if len(inven)<3:
@@ -308,9 +305,6 @@ class Board:
                                         (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5),1)
 
     def draw(self,input_id): #글씨나 값들이 가운데에 오도록 조정함
-        #now = datetime.datetime.now()
-        now = datetime.now()
-        nowTime = now.strftime('%H:%M:%S')
         self.screen.fill(BLACK)
         for x in range(self.width):
             for y in range(self.height):
