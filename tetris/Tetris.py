@@ -25,6 +25,12 @@ class Tetris:
         self.board = Board(self.screen)
         self.music_on_off = True
         self.check_reset = True
+
+    def init(self): ##o
+        self.frame_count=0
+        self.start_time=10 # origin 90
+        self.board.piece_x=3
+        self.board.piece_y=0
        
     def handle_key(self, event_key):
         if event_key == K_DOWN or event_key == K_s:
@@ -50,32 +56,13 @@ class Tetris:
            
 
     def HighScore(self,input_id):
-        '''try:
-            f = open('assets/save.txt', 'r')
-            l = f.read()
-            f.close()
-            if int(l) < self.board.score:
-                h_s = self.board.score
-                f = open('assets/save.txt', 'w')
-                f.write(str(self.board.score))
-                f.close()
-            else:
-                h_s = l
-            self.board.HS(str(h_s))
-        except:
-            f = open('assets/save.txt', 'w')
-            f.write(str(self.board.score))
-            f.close()
-            self.board.HS(str(self.board.score))'''
-        # pickle
-        # unpickle
         high_scores = []
-        with open('highscores.txt', 'rb') as f:
+        with open('assets/highscores.txt', 'rb') as f:
             high_scores = pickle.load(f)
         
         high_scores.append((str(input_id), self.board.score))
         high_scores = sorted(high_scores, key=itemgetter(1), reverse=True)[:10]
-        with open('highscores.txt', 'wb') as f:
+        with open('assets/highscores.txt', 'wb') as f:
             pickle.dump(high_scores, f)
 
         self.board.HS(high_scores)
@@ -93,7 +80,7 @@ class Tetris:
             if self.check_reset:
                 self.board.newGame()
                 self.check_reset = False
-                pygame.mixer.music.set_volume(0.70)
+                pygame.mixer.music.set_volume(0.60)
                 pygame.mixer.music.play(-1, 0.0)
             if self.board.game_over():
                 self.screen.fill(BLACK)
@@ -117,10 +104,33 @@ class Tetris:
                     self.board.drop_piece()
                 elif event.type== K_z:
                     self.board.use_item()
+
+            self.board.draw()
+
+            # Timer
+            total_seconds=self.start_time-(self.frame_count//30)
+            if total_seconds<0:
+                total_seconds=0
+
+            minutes=total_seconds//60
+            seconds=total_seconds%60
+
+            output='{0:02}:{1:02}'.format(minutes,seconds)
+            time_value=pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(output, True, BLACK)
+            self.screen.blit(time_value,(275,430))
+            self.frame_count+=1
+            
+            if minutes==0 and seconds==0:
+                self.board.next_round()
+                self.init()
+
+            pygame.display.flip() 
+
             # self.screen.fill(BLACK)
             self.board.draw(input_id)
             pygame.display.update()
             self.clock.tick(30)
+
 #여기부터 홈 메뉴 부분 가져온거
 import sys
 
@@ -141,8 +151,9 @@ ABOUT = ['pygameMenu {0}'.format(pygameMenu.__version__),
 
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
-MENU_BACKGROUND_COLOR = (169, 169, 169) #연보라로 바꿈
-WINDOW_SIZE = (640, 480)
+MENU_BACKGROUND_COLOR = (169, 169, 169) #메뉴 배경 색상 #회색 ##j
+MENU_TITLE_BG_COLOR = (169,169,169) #제목 배경 색상 ##j
+WINDOW_SIZE = (350, 400) ##초기 메뉴 사이즈
 
 sound = None
 surface = None
@@ -153,39 +164,19 @@ main_menu = None
 # Methods
 # -----------------------------------------------------------------------------
 def main_background(): #surface를 선언하고 fill
-    """
-    Background color of the main menu, on this function user can plot
-    images, play sounds, etc.
 
-    :return: None
-    """
     global surface
-    surface.fill((150, 150, 150)) #게임창 외 부분 색깔 채우기
+    surface.fill((0, 0, 0)) ##게임창 외 부분 검은색
 
 
 def check_name_test(value):
-    """
-    This function tests the text input widget.
 
-    :param value: The widget value
-    :type value: basestring
-    :return: None
-    """
     print('User name: {0}'.format(value))# 프린트 {0}{2}{1}.format(a,b,c) 하면 a,c,b순으로 출력됨
 
 
 # noinspection PyUnusedLocal
 def update_menu_sound(value, enabled):
-    """
-    Update menu sound.
 
-    :param value: Value of the selector (Label and index)
-    :type value: tuple
-    :param enabled: Parameter of the selector, (True/False)
-    :type enabled: bool
-    :return: Nonelkd
-
-    """
     global main_menu
     global sound
     if enabled:
@@ -220,7 +211,7 @@ def main(test=False):
 
     # Create pygame screen and objects
     surface = pygame.display.set_mode(WINDOW_SIZE)
-    pygame.display.set_caption('Example - Multi Input')
+    pygame.display.set_caption('Multi Input')
     clock = pygame.time.Clock()
 
     # -------------------------------------------------------------------------
@@ -248,6 +239,8 @@ def main(test=False):
                                     font_size_title=50,
                                     menu_alpha=100,
                                     menu_color=MENU_BACKGROUND_COLOR,
+                                    ##j
+                                    menu_color_title=MENU_TITLE_BG_COLOR,
                                     menu_height=int(WINDOW_SIZE[1] * 0.85),
                                     menu_width=int(WINDOW_SIZE[0] * 0.9),
                                     onclose=pygameMenu.events.DISABLE_CLOSE,
@@ -257,6 +250,7 @@ def main(test=False):
                                     window_width=WINDOW_SIZE[0]
                                     )
 
+
     # Add text inputs with different configurations
     wid1 = signup_menu.add_text_input('ID: ',
                                         default=' ',
@@ -264,9 +258,7 @@ def main(test=False):
                                         onreturn=check_name_test,
                                         textinput_id='ID')
     signup_menu.add_text_input('PASSWORD: ',
-                                        
-
-					                    password=True,	
+                                        password=True,
                                         maxchar=8,
                                         textinput_id='PASSWORD')
 
@@ -291,8 +283,7 @@ def main(test=False):
         f.close()
 
     signup_menu.add_option('Store data', data_func)  # Call function
-    signup_menu.add_option('Return to main menu', pygameMenu.events.BACK,
-                             align=pygameMenu.locals.ALIGN_CENTER)
+    signup_menu.add_option('Return to main menu', pygameMenu.events.BACK,align=pygameMenu.locals.ALIGN_CENTER)
 
 
     #signin_menu
@@ -301,8 +292,9 @@ def main(test=False):
                                   color_selected=COLOR_WHITE,
                                   font=pygameMenu.font.FONT_BEBAS,
                                   font_color=COLOR_BLACK,
-                                  font_size=25,
-                                  font_size_title=50,
+                                  menu_color_title=MENU_TITLE_BG_COLOR,
+                                  font_size=20,
+                                  font_size_title=40,
                                   menu_alpha=100,
                                   menu_color=MENU_BACKGROUND_COLOR,
                                   menu_height=int(WINDOW_SIZE[1] * 0.85),
@@ -324,6 +316,7 @@ def main(test=False):
                                maxchar=8,
                                textinput_id='PASSWORD',
                                input_underline='_')
+
 
     def data2_func():
 
@@ -347,10 +340,103 @@ def main(test=False):
                        break
                     else:
                         print("비밀번호가 틀렸습니다")
+                        signin_menu.full_reset() ## 아직 안돼서 그냥 이전 메뉴로 돌아가게
                         break
-    
+
     signin_menu.add_option('Login', data2_func)  # Call function
     signin_menu.add_option('Return to main menu', pygameMenu.events.BACK, align=pygameMenu.locals.ALIGN_CENTER)
+
+
+    ##j 로그인 에러 메시지
+    # sound = pygameMenu.sound.Sound()
+    # wrongpw_menu = pygameMenu.Menu(surface,
+    #                               bgfun=main_background,
+    #                               title="wrong ID or PASSWORD",
+    #                               fps=FPS,
+    #                               color_selected=COLOR_WHITE,
+    #                               font=pygameMenu.font.FONT_BEBAS,
+    #                               font_color=COLOR_BLACK,
+    #                               menu_color_title=MENU_TITLE_BG_COLOR,
+    #                               font_size=20,
+    #                               font_size_title=40,
+    #                               menu_alpha=100,
+    #                               menu_color=MENU_BACKGROUND_COLOR,
+    #                               menu_height=int(WINDOW_SIZE[1] * 0.85),
+    #                               menu_width=int(WINDOW_SIZE[0] * 0.9),
+    #                               onclose=pygameMenu.events.DISABLE_CLOSE,
+    #                               window_height=WINDOW_SIZE[1],
+    #                               window_width=WINDOW_SIZE[0]
+    #                              )
+    # wrongpw_menu.set_sound(sound, True)
+
+
+    # rank_menu ##j
+    ranks  = []
+    with open('highscores.txt', 'rb') as f:
+        r = pickle.load(f)
+        r.sort(key=itemgetter(1, 0), reverse=True)
+        for i in range(0,len(r)):
+            ranks.append(str(r[i]))
+
+
+
+    rank_menu = pygameMenu.TextMenu(surface,
+                                    bgfun=main_background,
+                                    color_selected=COLOR_WHITE,
+                                    menu_color_title=MENU_TITLE_BG_COLOR,
+                                    font=pygameMenu.font.FONT_BEBAS,
+                                    font_color=COLOR_BLACK,
+                                    font_size_title=40,
+                                    menu_alpha=100,
+                                    menu_color=MENU_BACKGROUND_COLOR,
+                                    menu_height=int(WINDOW_SIZE[1] * 0.85),
+                                    menu_width=int(WINDOW_SIZE[0] * 0.9),
+                                    onclose=pygameMenu.events.EXIT,  # User press ESC button
+                                    option_shadow=False,
+                                    title='RANK',
+                                    text_color=COLOR_BLACK,
+                                    text_align=pygameMenu.locals.ALIGN_CENTER,
+                                    text_fontsize=10,
+                                    window_height=WINDOW_SIZE[1],
+                                    window_width=WINDOW_SIZE[0]
+                                    )
+    for line in ranks:
+        rank_menu.add_line(line)  # Add line
+    rank_menu.add_option('Return to Menu', pygameMenu.events.BACK, align=pygameMenu.locals.ALIGN_CENTER)
+    f.close()
+
+    # help_menu ##j
+    helps = ['HELP :',
+             '\n',
+            'Press ESC to enable/disable Menu',
+            'Press ENTER to access a Sub-Menu or use an option',
+            'Press UP/DOWN to move through Menu',
+            'Press LEFT/RIGHT to move through Selectors']
+
+    help_menu = pygameMenu.TextMenu(surface,
+                                bgfun=main_background,
+                                color_selected=COLOR_WHITE,
+                                menu_color_title=MENU_TITLE_BG_COLOR,
+                                font=pygameMenu.font.FONT_BEBAS,
+                                font_color=COLOR_BLACK,
+                                font_size_title=40,
+                                menu_alpha=100,
+                                menu_color=MENU_BACKGROUND_COLOR,
+                                menu_height=int(WINDOW_SIZE[1] * 0.85),
+                                menu_width=int(WINDOW_SIZE[0] * 0.9),
+                                onclose=pygameMenu.events.EXIT, # User press ESC button
+                                option_shadow=False,
+                                title='HELP',
+                                text_color=COLOR_BLACK,
+                                text_align=pygameMenu.locals.ALIGN_CENTER,
+                                text_fontsize=10,
+                                window_height=WINDOW_SIZE[1],
+                                window_width=WINDOW_SIZE[0]
+                                   )
+    for line in helps:
+                  help_menu.add_line(line)  # Add line
+    help_menu.add_option('Return to Menu', pygameMenu.events.BACK,align=pygameMenu.locals.ALIGN_CENTER)
+
 
     # Main menu
     main_menu = pygameMenu.Menu(surface,
@@ -358,7 +444,7 @@ def main(test=False):
                                 color_selected=COLOR_WHITE,
                                 font=pygameMenu.font.FONT_COMIC_NEUE,
                                 font_color=COLOR_BLACK,
-                                font_size=30,
+                                font_size=20,
                                 font_size_title=40,
                                 menu_alpha=100,
                                 menu_color=MENU_BACKGROUND_COLOR,
@@ -375,8 +461,8 @@ def main(test=False):
 
     main_menu.add_option('SIGN_UP', signup_menu)
     main_menu.add_option('SIGN_IN', signin_menu)
-    #main_menu.add_option('RANK', self.board.HS(highscores))
-    main_menu.add_option('HELP', signup_menu)
+    main_menu.add_option('RANK', rank_menu)
+    main_menu.add_option('HELP', help_menu)
     main_menu.add_selector('Menu sounds',
                            [('Off', False), ('On', True)],
                            onchange=update_menu_sound)
@@ -408,3 +494,5 @@ def main(test=False):
 
 if __name__ == '__main__':
     main()
+
+

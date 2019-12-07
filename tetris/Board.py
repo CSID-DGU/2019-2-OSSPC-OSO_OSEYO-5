@@ -48,9 +48,7 @@ class Board:
     def init_board(self):
         self.board = []
         self.score = 0
-        self.level = 1
-        self.goal = 5
-        self.skill = 0
+        self.round = 1
         for _ in range(self.height):
             self.board.append([0]*self.width)
                                    
@@ -70,9 +68,10 @@ class Board:
                 if block:
                     self.board[y+self.piece_y][x+self.piece_x] = block
         self.nextpiece()
-        self.score += self.level
-        if self.skill < 100:
-            self.skill += 5
+        if self.round<=9:
+            self.score += self.round
+        else :
+            self.score+=10
 
     def block_collide_with_board(self, x, y):
         if x < 0:
@@ -184,19 +183,13 @@ class Board:
                 if flag==True: # flag가 True이면 맨 밑줄 사라지는 아이템이 있으면 맨 밑줄을 없앰
                     self.delete_under()
 
-                self.score += 10 * self.level
+                if self.round<=9:
+                    self.score += 10 * self.round
+                else :
+                    self.score+=100
+        if len(count)>1:    # 콤보점수
+            self.score+=len(count)*100
 
-        
-                '''self.goal -= 1
-                
-                if self.goal == 0:
-                    if self.level < 10:
-                        self.level += 1 # goal과 따로 level 올리는 부분 필요
-                        self.goal = 5 * self.level
-                    else:
-                        self.goal = '-'
-                '''
-                ###
                 if self.level <= 9:
                     pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.level-1)))
                 else:
@@ -314,8 +307,9 @@ class Board:
                     pygame.draw.rect(self.screen, BLACK,
                                         (x_pix+255, y_pix+65, self.block_size * 0.5, self.block_size * 0.5),1)
 
-    def draw(self, input_id): #글씨나 값들이 가운데에 오도록 조정함
-        now = datetime.datetime.now()
+    def draw(self,input_id): #글씨나 값들이 가운데에 오도록 조정함
+        #now = datetime.datetime.now()
+        now = datetime.now()
         nowTime = now.strftime('%H:%M:%S')
         self.screen.fill(BLACK)
         for x in range(self.width):
@@ -340,24 +334,26 @@ class Board:
         pygame.draw.rect(self.screen, BLACK, [316, 145, 25, 25], 1)
         score_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('SCORE', True, BLACK)
         score_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.score), True, BLACK)
-        level_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('LEVEL', True, BLACK)
-        level_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.level), True, BLACK)
+        round_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('ROUND', True, BLACK)    
+        time_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('TIMER', True, BLACK)  
+        if self.round<=9:
+            round_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(self.round), True, BLACK)
+        else :
+            round_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render('-', True, BLACK)      
         time_text = pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('TIMER', True, BLACK)        
-        time_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(str(nowTime), True, BLACK)
-        player_text = pygame.font.Font('assets/Roboto-Bold.ttf',18).render('PLAYER',True,BLACK)
-        player_value = pygame.font.Font('assets/Roboto-Bold.ttf',16).render(input_id,True,BLACK)
+        player_text= pygame.font.Font('assets/Roboto-Bold.ttf', 18).render('PLAYER', True, BLACK)
+        player_value = pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(input_id, True, BLACK)
 
         self.screen.blit(next_text, (275, 20))
         self.screen.blit(item_text, (275, 120))
-        
         self.screen.blit(score_text, (270, 200))
         self.screen.blit(score_value, (290,225))
-        self.screen.blit(level_text, (270, 270))
-        self.screen.blit(level_value, (290,295))
+        self.screen.blit(round_text, (270, 270))
+        self.screen.blit(round_value, (290,295))
         self.screen.blit(player_text, (270,340))
-        self.screen.blit(player_value, (265, 365))
-        self.screen.blit(time_text,(265,405))
-        self.screen.blit(time_value,(275,430))
+        self.screen.blit(player_value, (265,365))
+        self.screen.blit(time_text, (265,405))
+
 
     def pause(self):
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
@@ -392,7 +388,6 @@ class Board:
         self.screen.blit(textSurfaceObj, textRectObj)
         self.screen.blit(textSurfaceObj2, textRectObj2)
         del inven[:]         #인벤토리와 속도 리셋되도록 설정
-        self.back_to_origin()
         pygame.display.update()
         
         running = True
@@ -402,6 +397,39 @@ class Board:
                     pygame.quit()
                     sys.exit()
                 elif event.type == KEYDOWN:
+                    running = False
+
+    def next_round(self): ##o
+        fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
+        textSurfaceObj = fontObj.render('Next Round', True, GREEN)
+        textRectObj = textSurfaceObj.get_rect()
+        textRectObj.center = (175, 185)
+        fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
+        textSurfaceObj2 = fontObj2.render('Press space to continue', True, GREEN)
+        textRectObj2 = textSurfaceObj2.get_rect()
+        textRectObj2.center = (175, 235)
+        self.screen.fill(BLACK)
+        self.screen.blit(textSurfaceObj, textRectObj)
+        self.screen.blit(textSurfaceObj2, textRectObj2)    
+        self.board = [] # 보드 초기화
+        del inven[:]
+        self.round+=1
+
+        if self.round<=9:
+            pygame.time.set_timer(pygame.USEREVENT, (500 - 50 * (self.round-1)))
+        else :
+            pygame.time.set_timer(pygame.USEREVENT, 100)
+
+        for _ in range(self.height):
+            self.board.append([0]*self.width)
+        pygame.display.update()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == KEYUP and event.key == K_SPACE:
                     running = False
 
     def newGame(self):
@@ -449,8 +477,6 @@ class Board:
                 self.screen.blit(textSurfaceObj3_1, textRectObj3_1)
                 self.screen.blit(textSurfaceObj3_2, textRectObj3_2)
                 self.screen.blit(textSurfaceObj3_3, textRectObj3_3)
-
-
 
             pygame.display.update()
             running = True
