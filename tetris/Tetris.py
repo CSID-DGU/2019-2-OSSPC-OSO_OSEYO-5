@@ -4,6 +4,7 @@ from Board import *
 import threading
 from operator import itemgetter
 import pickle
+
 #               R    G    B
 WHITE       = (255, 255, 255)
 GRAY        = (185, 185, 185)
@@ -26,9 +27,9 @@ class Tetris:
         self.music_on_off = True
         self.check_reset = True
 
-    def init(self): ##o
+    def init(self):
         self.frame_count=0
-        self.start_time=10 # origin 90
+        self.start_time=60 # origin 90
         self.board.piece_x=3
         self.board.piece_y=0
        
@@ -54,7 +55,6 @@ class Tetris:
         elif event_key == K_z:
             self.board.use_item()
            
-
     def HighScore(self,input_id):
         high_scores = []
         with open('assets/highscores.txt', 'rb') as f:
@@ -66,7 +66,6 @@ class Tetris:
             pickle.dump(high_scores, f)
 
         self.board.HS(high_scores)
-
 
     def run(self, input_id):
         self.init()
@@ -82,7 +81,7 @@ class Tetris:
             if self.check_reset:
                 self.board.newGame()
                 self.check_reset = False
-                pygame.mixer.music.set_volume(0.60)
+                pygame.mixer.music.set_volume(0.50)
                 pygame.mixer.music.play(-1, 0.0)
             if self.board.game_over():
                 self.screen.fill(BLACK)
@@ -95,6 +94,8 @@ class Tetris:
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
+                elif event.type == KEYUP and event.key == K_ESCAPE:
+                    main()
                 elif event.type == KEYUP and event.key == K_p:
                     self.screen.fill(BLACK)
                     pygame.mixer.music.stop()
@@ -123,26 +124,29 @@ class Tetris:
             self.frame_count+=1
             
             if minutes==0 and seconds==0:
-                self.board.next_round()
-                self.init()
-
-            pygame.display.flip() 
-
+                if self.board.round!=10:
+                    self.board.next_round()
+                    self.init()
+                else:
+                    self.screen.fill(BLACK)
+                    pygame.mixer.music.stop()                    
+                    self.board.all_clear()
+                    self.HighScore(input_id)
+                    self.check_reset = True
+                    self.board.init_board()
+            
+            pygame.display.update() 
             self.clock.tick(30)
 
-#여기부터 홈 메뉴 부분 가져온거
+############# menu #############
 import sys
-
-sys.path.insert(0, '../../')
-
 import os
 import pygame
-FPS = 60.0
 import pygameMenu
 
-# -----------------------------------------------------------------------------
-# Constants and global variables
-# -----------------------------------------------------------------------------
+sys.path.insert(0, '../../')
+FPS = 60.0
+
 ABOUT = ['pygameMenu {0}'.format(pygameMenu.__version__),
          'Author: @{0}'.format(pygameMenu.__author__),
          pygameMenu.locals.TEXT_NEWLINE,
@@ -150,95 +154,48 @@ ABOUT = ['pygameMenu {0}'.format(pygameMenu.__version__),
 
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
-MENU_BACKGROUND_COLOR = (169, 169, 169) #메뉴 배경 색상 #회색 ##j
-MENU_TITLE_BG_COLOR = (169,169,169) #제목 배경 색상 ##j
-WINDOW_SIZE = (350, 400) ##초기 메뉴 사이즈
+MENU_BACKGROUND_COLOR = (169, 169, 169)
+MENU_TITLE_BG_COLOR = (169,169,169)
+WINDOW_SIZE = (350, 450)
 
-sound = None
 surface = None
 main_menu = None
 
-
-# -----------------------------------------------------------------------------
-# Methods
-# -----------------------------------------------------------------------------
+home_bg = pygame.transform.scale(pygame.image.load("assets/images/home_bg.png"),(350,450))
+help_bg = pygame.transform.scale(pygame.image.load("assets/images/squid.png"),(300,300))
 def main_background(): #surface를 선언하고 fill
-
-    global surface
+    #global surface
     surface.fill((0, 0, 0)) ##게임창 외 부분 검은색
+    surface.blit(home_bg, (0,0))
 
-
-def check_name_test(value):
-
-    print('User name: {0}'.format(value))# 프린트 {0}{2}{1}.format(a,b,c) 하면 a,c,b순으로 출력됨
-
-
-# noinspection PyUnusedLocal
-def update_menu_sound(value, enabled):
-
-    global main_menu
-    global sound
-    if enabled:
-        main_menu.set_sound(sound, recursive=True)
-        print('Menu sound were enabled')
-    else:
-        main_menu.set_sound(None, recursive=True)
-        print('Menu sound were disabled')
-
+'''def main_background():
+    global surface
+    surface.fill((0, 0, 0))'''
 
 def main(test=False):
-    """
-    Main program.
+    pygame.init()
+    pygame.mixer.music.stop()
 
-    :param test: Indicate function is being tested
-    :type test: bool
-    :return: None
-    """
-
-    # -------------------------------------------------------------------------
-    # Globals
-    # -------------------------------------------------------------------------
     global main_menu
-    global sound
     global surface
 
-    # -------------------------------------------------------------------------
-    # Init pygame
-    # -------------------------------------------------------------------------
-    pygame.init()
     os.environ['SDL_VIDEO_CENTERED'] = '1'
 
     # Create pygame screen and objects
     surface = pygame.display.set_mode(WINDOW_SIZE)
-    pygame.display.set_caption('Multi Input')
+    pygame.display.set_caption('TETRIS')
     clock = pygame.time.Clock()
-
-    # -------------------------------------------------------------------------
-    # Set sounds
-    # -------------------------------------------------------------------------
-    sound = pygameMenu.sound.Sound()
-
-    # Load example sounds
-    sound.load_example_sounds()
-
-    # Disable a sound
-    sound.set_sound(pygameMenu.sound.SOUND_TYPE_ERROR, None)
-
-    # -------------------------------------------------------------------------
-    # Create menus
-    # -------------------------------------------------------------------------
 
     # signup_menu
     signup_menu = pygameMenu.Menu(surface,
                                     bgfun=main_background,
                                     color_selected=COLOR_WHITE,
-                                    font=pygameMenu.font.FONT_BEBAS,
+                                    font='assets/Roboto-Bold.ttf',
                                     font_color=COLOR_BLACK,
-                                    font_size=25,
+                                    font_size=20,
                                     font_size_title=50,
-                                    menu_alpha=100,
+                                    menu_alpha=50,
                                     menu_color=MENU_BACKGROUND_COLOR,
-                                    ##j
                                     menu_color_title=MENU_TITLE_BG_COLOR,
                                     menu_height=int(WINDOW_SIZE[1] * 0.85),
                                     menu_width=int(WINDOW_SIZE[0] * 0.9),
@@ -249,12 +206,10 @@ def main(test=False):
                                     window_width=WINDOW_SIZE[0]
                                     )
 
-
     # Add text inputs with different configurations
     wid1 = signup_menu.add_text_input('ID: ',
                                         default=' ',
                                         maxchar=8,
-                                        onreturn=check_name_test,
                                         textinput_id='ID')
     signup_menu.add_text_input('PASSWORD: ',
                                         password=True,
@@ -262,11 +217,6 @@ def main(test=False):
                                         textinput_id='PASSWORD')
 
     def data_func():
-        """
-        Print data of the menu.
-
-        :return: None
-        """
         print('signup data:')
         f=open("assets/account.txt","a")
         data = signup_menu.get_input_data()
@@ -284,31 +234,29 @@ def main(test=False):
     signup_menu.add_option('Store data', data_func)  # Call function
     signup_menu.add_option('Return to main menu', pygameMenu.events.BACK,align=pygameMenu.locals.ALIGN_CENTER)
 
-
     #signin_menu
     signin_menu = pygameMenu.Menu(surface,
-                                  bgfun=main_background,
-                                  color_selected=COLOR_WHITE,
-                                  font=pygameMenu.font.FONT_BEBAS,
-                                  font_color=COLOR_BLACK,
-                                  menu_color_title=MENU_TITLE_BG_COLOR,
-                                  font_size=20,
-                                  font_size_title=40,
-                                  menu_alpha=100,
-                                  menu_color=MENU_BACKGROUND_COLOR,
-                                  menu_height=int(WINDOW_SIZE[1] * 0.85),
-                                  menu_width=int(WINDOW_SIZE[0] * 0.9),
-                                  onclose=pygameMenu.events.DISABLE_CLOSE,
-                                  title='SIGN_IN',
-                                  widget_alignment=pygameMenu.locals.ALIGN_LEFT,
-                                  window_height=WINDOW_SIZE[1],
-                                  window_width=WINDOW_SIZE[0]
+                                bgfun=main_background,
+                                color_selected=COLOR_WHITE,
+                                font='assets/Roboto-Bold.ttf',                                  
+                                font_color=COLOR_BLACK,
+                                menu_color_title=MENU_TITLE_BG_COLOR,
+                                font_size=20,
+                                font_size_title=40,
+                                menu_alpha=50,
+                                menu_color=MENU_BACKGROUND_COLOR,
+                                menu_height=int(WINDOW_SIZE[1] * 0.85),
+                                menu_width=int(WINDOW_SIZE[0] * 0.9),
+                                onclose=pygameMenu.events.DISABLE_CLOSE,
+                                title='SIGN_IN',
+                                widget_alignment=pygameMenu.locals.ALIGN_LEFT,
+                                window_height=WINDOW_SIZE[1],
+                                window_width=WINDOW_SIZE[0]
                                   )
 
     # Add text inputs with different configurations
     signin_menu.add_text_input('ID: ',
                                       default=' ',
-                                      onreturn=check_name_test,
                                       textinput_id='ID')
     signin_menu.add_text_input('PASSWORD: ',
                                password=True,
@@ -316,9 +264,7 @@ def main(test=False):
                                textinput_id='PASSWORD',
                                input_underline='_')
 
-
     def data2_func():
-
         data = signin_menu.get_input_data()  # UI상에 입력된 정보 받아서 data에 저장
         input_id = (data['ID'].strip()).upper()
         input_pw = (data['PASSWORD'].strip()).upper()
@@ -345,7 +291,6 @@ def main(test=False):
     signin_menu.add_option('Login', data2_func)  # Call function
     signin_menu.add_option('Return to main menu', pygameMenu.events.BACK, align=pygameMenu.locals.ALIGN_CENTER)
 
-
     ##j 로그인 에러 메시지
     # sound = pygameMenu.sound.Sound()
     # wrongpw_menu = pygameMenu.Menu(surface,
@@ -368,8 +313,7 @@ def main(test=False):
     #                              )
     # wrongpw_menu.set_sound(sound, True)
 
-
-    # rank_menu ##j
+    # rank_menu
     ranks  = []
     with open('assets/highscores.txt', 'rb') as f:
         r = pickle.load(f)
@@ -377,25 +321,23 @@ def main(test=False):
         for i in range(0,len(r)):
             ranks.append(str(r[i]))
 
-
-
     rank_menu = pygameMenu.TextMenu(surface,
                                     bgfun=main_background,
                                     color_selected=COLOR_WHITE,
                                     menu_color_title=MENU_TITLE_BG_COLOR,
-                                    font=pygameMenu.font.FONT_BEBAS,
+                                    font='assets/Roboto-Bold.ttf',
                                     font_color=COLOR_BLACK,
+                                    font_size=20,
                                     font_size_title=40,
-                                    menu_alpha=100,
+                                    menu_alpha=50,
                                     menu_color=MENU_BACKGROUND_COLOR,
-                                    menu_height=int(WINDOW_SIZE[1] * 0.85),
+                                    menu_height=int(WINDOW_SIZE[1] * 0.9),
                                     menu_width=int(WINDOW_SIZE[0] * 0.9),
-                                    onclose=pygameMenu.events.EXIT,  # User press ESC button
                                     option_shadow=False,
-                                    title='RANK',
+                                    title='RANK', # top10
                                     text_color=COLOR_BLACK,
                                     text_align=pygameMenu.locals.ALIGN_CENTER,
-                                    text_fontsize=10,
+                                    text_fontsize=14,
                                     window_height=WINDOW_SIZE[1],
                                     window_width=WINDOW_SIZE[0]
                                     )
@@ -413,46 +355,43 @@ def main(test=False):
             'Press LEFT/RIGHT to move through Selectors']
 
     help_menu = pygameMenu.TextMenu(surface,
-                                bgfun=main_background,
-                                color_selected=COLOR_WHITE,
-                                menu_color_title=MENU_TITLE_BG_COLOR,
-                                font=pygameMenu.font.FONT_BEBAS,
-                                font_color=COLOR_BLACK,
-                                font_size_title=40,
-                                menu_alpha=100,
-                                menu_color=MENU_BACKGROUND_COLOR,
-                                menu_height=int(WINDOW_SIZE[1] * 0.85),
-                                menu_width=int(WINDOW_SIZE[0] * 0.9),
-                                onclose=pygameMenu.events.EXIT, # User press ESC button
-                                option_shadow=False,
-                                title='HELP',
-                                text_color=COLOR_BLACK,
-                                text_align=pygameMenu.locals.ALIGN_CENTER,
-                                text_fontsize=10,
-                                window_height=WINDOW_SIZE[1],
-                                window_width=WINDOW_SIZE[0]
-                                   )
+                                    bgfun=main_background,
+                                    color_selected=COLOR_WHITE,
+                                    menu_color_title=MENU_TITLE_BG_COLOR,
+                                    font='assets/Roboto-Bold.ttf',
+                                    font_color=COLOR_BLACK,
+                                    font_size=20,
+                                    font_size_title=40,
+                                    menu_alpha=50,
+                                    menu_color=MENU_BACKGROUND_COLOR,
+                                    menu_height=int(WINDOW_SIZE[1] * 0.9),
+                                    menu_width=int(WINDOW_SIZE[0] * 0.9),
+                                    option_shadow=False,
+                                    title='HELP',
+                                    text_color=COLOR_BLACK,
+                                    text_align=pygameMenu.locals.ALIGN_CENTER,
+                                    text_fontsize=14,
+                                    window_height=WINDOW_SIZE[1],
+                                    window_width=WINDOW_SIZE[0]
+                                    )
     for line in helps:
-                  help_menu.add_line(line)  # Add line
-    help_menu.add_option('Return to Menu', pygameMenu.events.BACK,align=pygameMenu.locals.ALIGN_CENTER)
-
+        help_menu.add_line(line)  # Add line
+    help_menu.add_option('Return to Menu', pygameMenu.events.BACK, align=pygameMenu.locals.ALIGN_CENTER)
 
     # Main menu
     main_menu = pygameMenu.Menu(surface,
                                 bgfun=main_background,
                                 color_selected=COLOR_WHITE,
-                                font=pygameMenu.font.FONT_COMIC_NEUE,
+                                font='assets/Roboto-Bold.ttf',
                                 font_color=COLOR_BLACK,
                                 font_size=20,
                                 font_size_title=40,
-                                menu_alpha=100,
+                                menu_alpha=0,
                                 menu_color=MENU_BACKGROUND_COLOR,
                                 menu_height=int(WINDOW_SIZE[1] * 0.7),
                                 menu_width=int(WINDOW_SIZE[0] * 0.8),
-                                # User press ESC button
-                                onclose=pygameMenu.events.EXIT,
                                 option_shadow=False,
-                                title='Main menu',
+                                title='TETRIS', #'Main menu',
                                 window_height=WINDOW_SIZE[1],
                                 window_width=WINDOW_SIZE[0]
                                 )
@@ -462,17 +401,11 @@ def main(test=False):
     main_menu.add_option('SIGN_IN', signin_menu)
     main_menu.add_option('RANK', rank_menu)
     main_menu.add_option('HELP', help_menu)
-    main_menu.add_selector('Menu sounds',
-                           [('Off', False), ('On', True)],
-                           onchange=update_menu_sound)
     main_menu.add_option('Quit', pygameMenu.events.EXIT)
 
     assert main_menu.get_widget('ID', recursive=True) is wid1
 
-
-    # -------------------------------------------------------------------------
     # Main loop
-    # -------------------------------------------------------------------------
     while True:
         # Tick
         clock.tick(FPS)
@@ -490,8 +423,5 @@ def main(test=False):
         if test:
             break
 
-
 if __name__ == '__main__':
     main()
-
-

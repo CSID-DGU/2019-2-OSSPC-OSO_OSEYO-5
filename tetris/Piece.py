@@ -154,7 +154,6 @@ class Piece:    #피스에 임의대로 숫자를 바꿔서 아이템 피스를 
                 self.piece_name = random.choice(list(Piece.PIECES.keys()))
                 self.array2d = Piece.PIECES[self.piece_name][self.rotation]
         
-
     def __iter__(self):
         for row in self.array2d:
             yield row
