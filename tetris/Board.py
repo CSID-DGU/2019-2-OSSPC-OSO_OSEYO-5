@@ -44,13 +44,37 @@ class Board:
         self.block_size = 25
         self.init_board()
         self.generate_piece()
-
+        # for timer
+        self.start_time=0
+        self.total_seconds=0
+        self.minutes=0
+        self.seconds=0
+        
     def init_board(self):
         self.board = []
         self.score = 0
         self.round = 1
         for _ in range(self.height):
             self.board.append([0]*self.width)
+
+    def init(self): # timer 초기화
+        self.frame_count=0
+        self.start_time=120
+        self.piece_x=3
+        self.piece_y=0
+
+    def timer(self):
+        self.total_seconds=self.start_time-(self.frame_count//30)
+        if self.total_seconds<0:
+            self.total_seconds=0
+
+        self.minutes=self.total_seconds//60
+        self.seconds=self.total_seconds%60
+
+        output='{0:02}:{1:02}'.format(self.minutes,self.seconds)
+        time_value=pygame.font.Font('assets/Roboto-Bold.ttf', 16).render(output, True, BLACK)
+        self.screen.blit(time_value,(275,430))
+        self.frame_count+=1
                                    
     def generate_piece(self):
         self.piece = Piece()
@@ -160,7 +184,7 @@ class Board:
             self.board[i][x]=0
     
     def delete_lines(self):
-        count=[]
+        count,line=[],[]
         for y,row in enumerate(self.board):
             if all(row):
                 count.append(y)
@@ -172,7 +196,7 @@ class Board:
                     elif num==15 and y!=19: # 라인에 맨 밑줄 사라지는 아이템이 있으면 그리고 그 라인이 맨 밑줄이 아니면 
                         flag=True
                     elif num==22 : # 라인에 세로로 사라지는 아이템이 있으면
-                        self.delete_vertical(x)
+                        line.append(x)
                     
                 line_sound=pygame.mixer.Sound("assets/sounds/Line_Clear.wav")
                 line_sound.play()
@@ -183,6 +207,9 @@ class Board:
                     self.delete_under()
 
                 self.score+=10*self.round
+
+        for x in line:
+            self.delete_vertical(x)
                 
         if len(count)>1:    # 콤보점수
             self.score+=len(count)*100
@@ -238,6 +265,8 @@ class Board:
         ink_sound.play()
         for i in range(3000):
             ink=self.screen.blit(squid_ink,(a, b))
+            if self.minutes==0 and self.seconds==0 :
+                break
         
     def game_over(self):
         return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
@@ -338,10 +367,9 @@ class Board:
         self.screen.blit(score_value, (290,225))
         self.screen.blit(round_text, (270, 270))
         self.screen.blit(round_value, (290,295))
-        self.screen.blit(player_text, (270,340))
+        self.screen.blit(player_text, (265,340))
         self.screen.blit(player_value, (265,365))
-        self.screen.blit(time_text, (265,405))
-
+        self.screen.blit(time_text, (270,405))
 
     def pause(self):
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
@@ -368,14 +396,20 @@ class Board:
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
         textSurfaceObj = fontObj.render('Game over', True, GREEN)
         textRectObj = textSurfaceObj.get_rect()
-        textRectObj.center = (175, 185)
-        fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
-        textSurfaceObj2 = fontObj2.render('Press a key to continue', True, GREEN)
+        textRectObj.center = (175, 160)
+        fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
+        textSurfaceObj2 = fontObj2.render('Your score : '+str(self.score), True, GREEN)
         textRectObj2 = textSurfaceObj2.get_rect()
-        textRectObj2.center = (175, 235)
+        textRectObj2.center = (175, 210)
+        fontObj3 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
+        textSurfaceObj3 = fontObj3.render('Press a key to continue', True, GREEN)
+        textRectObj3 = textSurfaceObj3.get_rect()
+        textRectObj3.center = (175, 260)
         self.screen.blit(textSurfaceObj, textRectObj)
         self.screen.blit(textSurfaceObj2, textRectObj2)
+        self.screen.blit(textSurfaceObj3, textRectObj3)
         del inven[:]         #인벤토리와 속도 리셋되도록 설정
+        pygame.time.set_timer(pygame.USEREVENT, 500)
         pygame.display.update()
         
         running = True
@@ -396,14 +430,20 @@ class Board:
         textSurfaceObj2 = fontObj2.render('ALL ROUND CLEAR!', True, GREEN)
         textRectObj2 = textSurfaceObj2.get_rect()
         textRectObj2.center = (175, 210)
-        fontObj3 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
-        textSurfaceObj3 = fontObj3.render('Press a key to continue', True, GREEN)
-        textRectObj3 = textSurfaceObj2.get_rect()
-        textRectObj3.center = (235, 260)
+        fontObj3 = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
+        textSurfaceObj3 = fontObj3.render('Your score : '+str(self.score), True, GREEN)
+        textRectObj3 = textSurfaceObj3.get_rect()
+        textRectObj3.center = (175, 260)
+        fontObj4 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
+        textSurfaceObj4 = fontObj4.render('Press a key to continue', True, GREEN)
+        textRectObj4 = textSurfaceObj4.get_rect()
+        textRectObj4.center = (235, 310)
         self.screen.blit(textSurfaceObj, textRectObj)
         self.screen.blit(textSurfaceObj2, textRectObj2)
         self.screen.blit(textSurfaceObj3, textRectObj3)
+        self.screen.blit(textSurfaceObj4, textRectObj4)
         del inven[:]         #인벤토리와 속도 리셋되도록 설정
+        pygame.time.set_timer(pygame.USEREVENT, 500)
         pygame.display.update()
         
         running = True
@@ -421,7 +461,7 @@ class Board:
         textRectObj = textSurfaceObj.get_rect()
         textRectObj.center = (175, 185)
         fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
-        textSurfaceObj2 = fontObj2.render('Press space to continue', True, GREEN)
+        textSurfaceObj2 = fontObj2.render('Press \'A\' to continue', True, GREEN)
         textRectObj2 = textSurfaceObj2.get_rect()
         textRectObj2.center = (175, 235)
         self.screen.fill(BLACK)
@@ -438,19 +478,21 @@ class Board:
 
         for _ in range(self.height):
             self.board.append([0]*self.width)
+
         pygame.display.update()
+
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == KEYUP and event.key == K_SPACE:
+                elif event.type == KEYUP and event.key == K_a:
                     running = False
 
     def newGame(self):
         fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 32)
-        textSurfaceObj = fontObj.render('Tetris', True, GREEN)
+        textSurfaceObj = fontObj.render('Welcome!', True, GREEN)
         textRectObj = textSurfaceObj.get_rect()
         textRectObj.center = (175, 185)
         fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
@@ -460,7 +502,10 @@ class Board:
         self.screen.fill(BLACK)
         self.screen.blit(textSurfaceObj, textRectObj)
         self.screen.blit(textSurfaceObj2, textRectObj2)
+        del inven[:]         #인벤토리와 속도 리셋되도록 설정
+        pygame.time.set_timer(pygame.USEREVENT, 500)
         pygame.display.update()
+
         running = True
         while running:
             for event in pygame.event.get():
@@ -469,37 +514,3 @@ class Board:
                     sys.exit()
                 elif event.type == KEYDOWN:
                     running = False
-
-    def HS(self, txt=[]):
-        if txt != []:
-            fontObj = pygame.font.Font('assets/Roboto-Bold.ttf', 25)
-            fontObj2 = pygame.font.Font('assets/Roboto-Bold.ttf', 16)
-            textSurfaceObj = fontObj.render("~Top 10 Score~", True, GREEN)
-            textSurfaceObj2 = fontObj2.render('Press a key to continue', True, GREEN)
-            textRectObj = textSurfaceObj.get_rect()
-            textRectObj2 = textSurfaceObj2.get_rect()
-            textRectObj.center = (175, 35)
-            textRectObj2.center = (175, 415)
-            self.screen.fill(BLACK)
-            self.screen.blit(textSurfaceObj, textRectObj)
-            self.screen.blit(textSurfaceObj2, textRectObj2)
-            for i,score in enumerate(txt):
-                textSurfaceObj3_1 = fontObj.render("No."+str(i+1), True, WHITE)
-                textSurfaceObj3_2 = fontObj.render(str(score[0]), True, WHITE)
-                textSurfaceObj3_3 = fontObj.render(str(score[1]), True, WHITE)
-                textRectObj3_1 = textSurfaceObj3_1.get_rect(); textRectObj3_1.center=(80,100+i*30)
-                textRectObj3_2 = textSurfaceObj3_2.get_rect();textRectObj3_2.center=(180,100+i*30)
-                textRectObj3_3 = textSurfaceObj3_3.get_rect();textRectObj3_3.center=(260,100+i*30)
-                self.screen.blit(textSurfaceObj3_1, textRectObj3_1)
-                self.screen.blit(textSurfaceObj3_2, textRectObj3_2)
-                self.screen.blit(textSurfaceObj3_3, textRectObj3_3)
-
-            pygame.display.update()
-            running = True
-            while running:
-                for event in pygame.event.get():
-                    if event.type == QUIT:
-                        pygame.quit()
-                        sys.exit()
-                    elif event.type == KEYDOWN:
-                        running = False
