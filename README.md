@@ -1,11 +1,11 @@
 ### 2019-2-OSSPC-OSO_OSEYO-5
 
 ## ***Original Project***
- Tetris imported from https://github.com/alchon/OSD_game
- License : GNI GPL v3.0
- Tetris.py:113 lines
- Board.py:331 lines
- Piece.py:67 lines
+ Tetris imported from https://github.com/alchon/OSD_game 
+ License : GNI GPL v3.0 
+   Tetris.py:113 lines
+   Board.py:331 lines
+   Piece.py:67 lines
 
 ## ***Programming Environment***
    On UBUNTU , Python Version 3.5.2
