@@ -16,7 +16,7 @@
  
 ## ***How we converted the Original one***
  1. Time Attack
- 2. Sign In / Sign On System
- 3. Home Menu with Sign in,on, Help, Rank, Quit 
+ 2. Sign In / Sign Up System
+ 3. Home Menu with Sign In, Up, Help, Rank, Quit 
  4. Various Items
  5. Combo Score
