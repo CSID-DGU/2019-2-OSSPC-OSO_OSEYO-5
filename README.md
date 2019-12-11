@@ -6,6 +6,8 @@
  License : GNI GPL v3.0
   
  Tetris.py:113 lines / Board.py:331 lines / Piece.py:67 lines
+ 
+ ![Gaming](https://github.com/CSID-DGU/2019-2-OSSPC-OSO_OSEYO-5/master/pictures/original.gif?raw=true)
 
 ## ***Programming Environment***
  On UBUNTU , Python Version 3.5.2
