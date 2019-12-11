@@ -7,7 +7,7 @@
   
  Tetris.py:113 lines / Board.py:331 lines / Piece.py:67 lines
  
- ![Gaming](https://github.com/CSID-DGU/2019-2-OSSPC-OSO_OSEYO-5/master/pictures/original.gif?raw=true)
+![original](https://user-images.githubusercontent.com/37091424/70601264-08850080-1c35-11ea-8180-b92a43a06368.gif)
 
 ## ***Programming Environment***
  On UBUNTU , Python Version 3.5.2
