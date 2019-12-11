@@ -22,3 +22,6 @@
  3. Home Menu with Sign In, Up, Help, Rank, Quit 
  4. Various Items
  5. Combo Score
+ 
+ ![new](https://user-images.githubusercontent.com/37091424/70612922-23626f80-1c4b-11ea-9dbd-6d8f49adb64a.gif)
+
