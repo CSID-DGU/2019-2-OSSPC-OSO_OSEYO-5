@@ -25,7 +25,7 @@
  
  ![new](https://user-images.githubusercontent.com/37091424/70612922-23626f80-1c4b-11ea-9dbd-6d8f49adb64a.gif)
  
-![help](https://user-images.githubusercontent.com/37091424/70683936-95889200-1ce7-11ea-9b4d-96326cc99ee3.png)
+ ![help2](https://user-images.githubusercontent.com/37091424/70684045-1cd60580-1ce8-11ea-86ee-33aef922cdd4.png)
 
 ![help](https://user-images.githubusercontent.com/37091424/70684008-ea2c0d00-1ce7-11ea-93e1-9eab8e9b7256.png)
 ## ***Next HomeWork With this Project*** 
