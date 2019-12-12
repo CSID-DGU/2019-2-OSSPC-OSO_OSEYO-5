@@ -26,10 +26,10 @@
  ![new](https://user-images.githubusercontent.com/37091424/70612922-23626f80-1c4b-11ea-9dbd-6d8f49adb64a.gif)
  
 ## ***Next HomeWork With this Project*** 
- 1.flying airplane obstacles
- 2.Error Message on Screen when ID or PW was wrong
- 3.Squid Ink flickering -> make another Time Thread
- 4.It would be great with multi-play version
+ 1. flying airplane obstacles
+ 2. Error Message on Screen when ID or PW was wrong
+ 3. Squid Ink flickering -> make another Time Thread
+ 4. It would be great with multi-play version
 
 ## ***BGM Source***
 https://bgmstore.net/user/5bb0d1e1352039d22712bd2a
