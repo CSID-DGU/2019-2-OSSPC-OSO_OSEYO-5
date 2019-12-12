@@ -24,7 +24,8 @@
  5. Combo Score
  
  ![new](https://user-images.githubusercontent.com/37091424/70612922-23626f80-1c4b-11ea-9dbd-6d8f49adb64a.gif)
- 
+ ![help2](https://user-images.githubusercontent.com/37091424/70683935-91f50b00-1ce7-11ea-8853-cd46b4571b61.png)
+![help](https://user-images.githubusercontent.com/37091424/70683936-95889200-1ce7-11ea-9b4d-96326cc99ee3.png)
 ## ***Next HomeWork With this Project*** 
  1. flying airplane obstacles
  2. Error Message on Screen when ID or PW was wrong
